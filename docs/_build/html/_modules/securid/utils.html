@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>securid.utils &#8212; securid 0.9.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for securid.utils</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
+<span class="k">try</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="kn">from</span> <span class="nn">secrets</span> <span class="kn">import</span> <span class="n">SystemRandom</span>  <span class="c1"># (Python &gt;= 3.6) type: ignore</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">SystemRandom</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;AES_BLOCK_SIZE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AES_KEY_SIZE&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Bytes&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BytesStr&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;random&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;arrayset&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;arraycpy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;aes_ecb_encrypt&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;aes_ecb_decrypt&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xor_block&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cbc_hash&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">AES_BLOCK_SIZE</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">AES_KEY_SIZE</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="n">Bytes</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">]</span>
+<span class="n">BytesStr</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+
+<span class="n">random</span> <span class="o">=</span> <span class="n">SystemRandom</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">arrayset</span><span class="p">(</span><span class="n">dest</span><span class="p">:</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dest_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">dest</span><span class="p">[</span><span class="n">dest_offset</span><span class="p">:</span><span class="n">dest_offset</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+
+<span class="k">def</span> <span class="nf">arraycpy</span><span class="p">(</span><span class="n">dest</span><span class="p">:</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">BytesStr</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dest_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="o">-</span> <span class="n">dest_offset</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">src</span><span class="p">))</span>
+    <span class="n">dest</span><span class="p">[</span><span class="n">dest_offset</span><span class="p">:</span><span class="n">dest_offset</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">src</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="aes_ecb_encrypt"><a class="viewcode-back" href="../../index.html#securid.utils.aes_ecb_encrypt">[docs]</a><span class="k">def</span> <span class="nf">aes_ecb_encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encrypt data with the key using AES-128 ECB</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">AES</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">AES</span><span class="o">.</span><span class="n">MODE_ECB</span><span class="p">)</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="aes_ecb_decrypt"><a class="viewcode-back" href="../../index.html#securid.utils.aes_ecb_decrypt">[docs]</a><span class="k">def</span> <span class="nf">aes_ecb_decrypt</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decrypt data with the key using AES-128 ECB</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">AES</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">AES</span><span class="o">.</span><span class="n">MODE_ECB</span><span class="p">)</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
+
+
+<span class="k">def</span> <span class="nf">xor_block</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+
+
+<div class="viewcode-block" id="cbc_hash"><a class="viewcode-back" href="../../index.html#securid.utils.cbc_hash">[docs]</a><span class="k">def</span> <span class="nf">cbc_hash</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">iv</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate cipher block chaining message authentication code</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">iv</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">aes_ecb_encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">xor_block</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">AES_BLOCK_SIZE</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.0.
+    </div>
+  </body>
+</html>

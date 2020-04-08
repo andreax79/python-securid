@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>python-securid - RSA SecurID 128-bit Token Library &#8212; securid 0.9.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">securid 0.9.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="python-securid-rsa-securid-128-bit-token-library">
+<h1>python-securid - RSA SecurID 128-bit Token Library<a class="headerlink" href="#python-securid-rsa-securid-128-bit-token-library" title="Permalink to this headline">¶</a></h1>
+<p>python-securid is a Python library for generating RSA SecurID 128-bit compatible token codes.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">securid</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stdin-file">
+<h3>Stdin File<a class="headerlink" href="#stdin-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
+<span class="kn">from</span> <span class="nn">securid.stdin</span> <span class="kn">import</span> <span class="n">StdinFile</span>
+
+<span class="c1"># Read stdin file</span>
+<span class="n">stdin</span> <span class="o">=</span> <span class="n">StdinFile</span><span class="p">(</span><span class="s1">&#39;filename.sdtid&#39;</span><span class="p">)</span>
+<span class="c1"># Decrypt token with password</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">stdin</span><span class="o">.</span><span class="n">get_token</span><span class="p">(</span><span class="n">password</span><span class="o">=</span><span class="s1">&#39;000123456789&#39;</span><span class="p">)</span>
+<span class="c1"># Generate OTP</span>
+<span class="n">token</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="c1">#=&gt; &#39;123456&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="stoken-file">
+<h3>Stoken File<a class="headerlink" href="#stoken-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
+<span class="kn">from</span> <span class="nn">securid.stoken</span> <span class="kn">import</span> <span class="n">StokenFile</span>
+
+<span class="c1"># Read ~/.stokenrc file</span>
+<span class="n">stoken</span> <span class="o">=</span> <span class="n">StokenFile</span><span class="p">()</span>
+<span class="c1"># Get token</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">stdin</span><span class="o">.</span><span class="n">get_token</span><span class="p">()</span>
+<span class="c1"># Generate OTP</span>
+<span class="n">token</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="c1">#=&gt; &#39;123456&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-a-new-token">
+<h3>Generating a new Token<a class="headerlink" href="#generating-a-new-token" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
+
+<span class="n">token</span> <span class="o">=</span> <span class="n">securid</span><span class="o">.</span><span class="n">Token</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">exp_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2030</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="c1"># =&gt;  digits: 6 exp_date: 2030-01-01 interval: 60 seed: 34b7e942eb6fb35bbf81579dcd9b0522 serial: 922729241304</span>
+<span class="c1"># Generate OTP</span>
+<span class="n">token</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="c1">#=&gt; &#39;755546&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="links">
+<h3>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/andreax79/python-securid">Project home page (GitHub)</a></p></li>
+<li><p><a class="reference external" href="https://github.com/cernekee/stoken">stoken - Software Token for Linux/UNIX</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pyauth/pyotp">PyOTP - Python One-Time Password Library</a></p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="module-securid">
+<span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-securid" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="securid.Token">
+<em class="property">class </em><code class="sig-prename descclassname">securid.</code><code class="sig-name descname">Token</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">serial</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">, </span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">seed</span><span class="p">:</span> <span class="n">Union[bytes, None, str]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interval</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">60</span></em>, <em class="sig-param"><span class="n">digits</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">6</span></em>, <em class="sig-param"><span class="n">exp_date</span><span class="p">:</span> <span class="n">Union[datetime.date, None, str]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/token.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for RSA SecurID 128-bit compatible token codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>serial</strong> – token serial number</p></li>
+<li><p><strong>seed</strong> – token seed</p></li>
+<li><p><strong>interval</strong> – time interval in seconds for OTP (default: 60)</p></li>
+<li><p><strong>digits</strong> – number of digits (default: 6)</p></li>
+<li><p><strong>exp_date</strong> – expiration date</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="securid.Token.at">
+<code class="sig-name descname">at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">for_time</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>datetime.datetime<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/securid/token.html#Token.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token.at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate OTP for the given time
+(accepts either a Unix timestamp integer or a datetime object)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>for_time</strong> – the time to generate an OTP for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTP code</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="securid.Token.generate_otp">
+<code class="sig-name descname">generate_otp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span><span class="p">:</span> <span class="n">datetime.datetime</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/securid/token.html#Token.generate_otp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token.generate_otp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate OTP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> – the time to generate an OTP for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTP code</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="securid.Token.now">
+<code class="sig-name descname">now</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/securid/token.html#Token.now"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token.now" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the current time OTP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>OTP value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="module-securid.stdin">
+<span id="securid-stdin"></span><h2>securid.stdin<a class="headerlink" href="#module-securid.stdin" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="securid.stdin.StdinFile">
+<em class="property">class </em><code class="sig-prename descclassname">securid.stdin.</code><code class="sig-name descname">StdinFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/stdin.html#StdinFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.stdin.StdinFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for RSA SecurID stdin XML file format.</p>
+<dl class="py method">
+<dt id="securid.stdin.StdinFile.get_token">
+<code class="sig-name descname">get_token</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">password</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; securid.token.Token<a class="reference internal" href="_modules/securid/stdin.html#StdinFile.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.stdin.StdinFile.get_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Token instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>password</strong> – optional password for decrypting the token</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="securid.stdin.StdinFile.xml_to_dict">
+<em class="property">classmethod </em><code class="sig-name descname">xml_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xml</span><span class="p">:</span> <span class="n">xml.etree.ElementTree.Element</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Any<span class="p">]</span><a class="reference internal" href="_modules/securid/stdin.html#StdinFile.xml_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.stdin.StdinFile.xml_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert XML to nested OrderDict</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-securid.stoken">
+<span id="securid-stoken"></span><h2>securid.stoken<a class="headerlink" href="#module-securid.stoken" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="securid.stoken.StokenFile">
+<em class="property">class </em><code class="sig-prename descclassname">securid.stoken.</code><code class="sig-name descname">StokenFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'~/.stokenrc'</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union[bytes, None, bytearray, str]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">token</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>securid.token.Token<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.stoken.StokenFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for stokenrc file format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – stokenrc file path</p></li>
+<li><p><strong>data</strong> – token as string in stokenrc format</p></li>
+<li><p><strong>token</strong> – Token instance</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="securid.stoken.StokenFile.get_token">
+<code class="sig-name descname">get_token</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">password</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; securid.token.Token<a class="reference internal" href="_modules/securid/stoken.html#StokenFile.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.stoken.StokenFile.get_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Token instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="securid.stoken.StokenFile.parse_file">
+<em class="property">classmethod </em><code class="sig-name descname">parse_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="_modules/securid/stoken.html#StokenFile.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.stoken.StokenFile.parse_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse stokenrc file, return token as string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – stokenrc file path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-securid.exceptions">
+<span id="securid-exceptions"></span><h2>securid.exceptions<a class="headerlink" href="#module-securid.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="py exception">
+<dt id="securid.exceptions.ParseException">
+<em class="property">exception </em><code class="sig-prename descclassname">securid.exceptions.</code><code class="sig-name descname">ParseException</code><a class="reference internal" href="_modules/securid/exceptions.html#ParseException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.exceptions.ParseException" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is raised in case of error parsing file</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="securid.exceptions.InvalidToken">
+<em class="property">exception </em><code class="sig-prename descclassname">securid.exceptions.</code><code class="sig-name descname">InvalidToken</code><a class="reference internal" href="_modules/securid/exceptions.html#InvalidToken"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.exceptions.InvalidToken" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is raised in case of invalid token</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="securid.exceptions.InvalidSignature">
+<em class="property">exception </em><code class="sig-prename descclassname">securid.exceptions.</code><code class="sig-name descname">InvalidSignature</code><a class="reference internal" href="_modules/securid/exceptions.html#InvalidSignature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.exceptions.InvalidSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is raised when signature verification fails.
+This can occur when password is required for decrypting the token.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="securid.exceptions.InvalidSeed">
+<em class="property">exception </em><code class="sig-prename descclassname">securid.exceptions.</code><code class="sig-name descname">InvalidSeed</code><a class="reference internal" href="_modules/securid/exceptions.html#InvalidSeed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.exceptions.InvalidSeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is raised when the seed is missing or invalid.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="securid.exceptions.InvalidSerial">
+<em class="property">exception </em><code class="sig-prename descclassname">securid.exceptions.</code><code class="sig-name descname">InvalidSerial</code><a class="reference internal" href="_modules/securid/exceptions.html#InvalidSerial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.exceptions.InvalidSerial" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is raised when the serial is missing or invalid.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-securid.utils">
+<span id="securid-utils"></span><h2>securid.utils<a class="headerlink" href="#module-securid.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="securid.utils.aes_ecb_encrypt">
+<code class="sig-prename descclassname">securid.utils.</code><code class="sig-name descname">aes_ecb_encrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="_modules/securid/utils.html#aes_ecb_encrypt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.utils.aes_ecb_encrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypt data with the key using AES-128 ECB</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="securid.utils.aes_ecb_decrypt">
+<code class="sig-prename descclassname">securid.utils.</code><code class="sig-name descname">aes_ecb_decrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="_modules/securid/utils.html#aes_ecb_decrypt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.utils.aes_ecb_decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypt data with the key using AES-128 ECB</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="securid.utils.cbc_hash">
+<code class="sig-prename descclassname">securid.utils.</code><code class="sig-name descname">cbc_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">iv</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="_modules/securid/utils.html#cbc_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.utils.cbc_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate cipher block chaining message authentication code</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">python-securid - RSA SecurID 128-bit Token Library</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#stdin-file">Stdin File</a></li>
+<li><a class="reference internal" href="#stoken-file">Stoken File</a></li>
+<li><a class="reference internal" href="#generating-a-new-token">Generating a new Token</a></li>
+<li><a class="reference internal" href="#links">Links</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-securid">API documentation</a><ul>
+<li><a class="reference internal" href="#module-securid.stdin">securid.stdin</a></li>
+<li><a class="reference internal" href="#module-securid.stoken">securid.stoken</a></li>
+<li><a class="reference internal" href="#module-securid.exceptions">securid.exceptions</a></li>
+<li><a class="reference internal" href="#module-securid.utils">securid.utils</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">securid 0.9.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.0.
+    </div>
+  </body>
+</html>
