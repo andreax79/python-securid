@@ -8,3 +8,14 @@
 
 - initial version
 
+## 0.9.1
+
+2020-04-14
+
+### Added
+
+- json file support
+
+### Fix
+
+- sdtid parsing fix

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>securid.stoken &#8212; securid 0.9.0 documentation</title>
+    <title>securid.stoken &#8212; securid 0.9.1 documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -44,13 +44,17 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="n">Token</span>
+<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SERIAL_LENGTH</span><span class="p">,</span>
+    <span class="n">Token</span><span class="p">,</span>
+    <span class="n">AbstractTokenFile</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AES_KEY_SIZE</span><span class="p">,</span>
     <span class="n">Bytes</span><span class="p">,</span>
     <span class="n">aes_ecb_encrypt</span><span class="p">,</span>
     <span class="n">aes_ecb_decrypt</span><span class="p">,</span>
-    <span class="n">arraycpy</span>
+    <span class="n">Bytearray</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ParseException</span><span class="p">,</span>
@@ -81,7 +85,6 @@
 <span class="n">TOKEN_BITS_PER_CHAR</span>     <span class="o">=</span> <span class="mi">3</span>
 <span class="n">STOKEN_MAGIC</span>            <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0xd8</span><span class="p">,</span> <span class="mh">0xf5</span><span class="p">,</span> <span class="mh">0x32</span><span class="p">,</span> <span class="mh">0x53</span><span class="p">,</span> <span class="mh">0x82</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">])</span>
 <span class="n">VER_LENGTH</span>              <span class="o">=</span> <span class="mi">1</span>
-<span class="n">SERIAL_LENGTH</span>           <span class="o">=</span> <span class="mi">12</span>
 <span class="n">CHECKSUM_BITS</span>           <span class="o">=</span> <span class="mi">15</span>
 <span class="n">CHECKSUM_LENGTH</span>         <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">CHECKSUM_BITS</span> <span class="o">/</span> <span class="n">TOKEN_BITS_PER_CHAR</span><span class="p">)</span>
 <span class="n">BINENC_BITS</span>             <span class="o">=</span> <span class="mi">189</span>
@@ -93,7 +96,7 @@
 <span class="n">SECURID_EPOCH</span>           <span class="o">=</span> <span class="mi">730120</span>  <span class="c1"># 2000/01/01 proleptic Gregorian ordinal</span>
 
 
-<div class="viewcode-block" id="StokenFile"><a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile">[docs]</a><span class="k">class</span> <span class="nc">StokenFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="StokenFile"><a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile">[docs]</a><span class="k">class</span> <span class="nc">StokenFile</span><span class="p">(</span><span class="n">AbstractTokenFile</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handler for stokenrc file format</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -105,7 +108,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_STOKEN_FILENAME</span><span class="p">,</span>
                  <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytearray</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Token</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                 <span class="n">token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Token</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            :param filename: stokenrc file path</span>
 <span class="sd">            :param data: token as string in stokenrc format</span>
@@ -173,22 +176,22 @@
         <span class="n">enc_seed</span> <span class="o">=</span> <span class="n">aes_ecb_encrypt</span><span class="p">(</span><span class="n">key_hash</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">seed_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_securid_mac</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">seed</span><span class="p">))</span>
 
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MAX_TOKEN_BITS</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="n">arraycpy</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">enc_seed</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">AES_KEY_SIZE</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MAX_TOKEN_BITS</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="n">enc_seed</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">AES_KEY_SIZE</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">159</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">seed_hash</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">exp_date</span><span class="o">.</span><span class="n">toordinal</span><span class="p">()</span> <span class="o">-</span> <span class="n">SECURID_EPOCH</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">exp_date</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="mi">81</span><span class="p">)</span>
-        <span class="n">arraycpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># version</span>
-        <span class="n">arraycpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bits_to_numoutput</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">BINENC_BITS</span><span class="p">),</span> <span class="n">dest_offset</span><span class="o">=</span><span class="n">BINENC_OFS</span><span class="p">)</span>
-        <span class="n">arraycpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">SERIAL_LENGTH</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="n">VER_LENGTH</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="mi">81</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># version</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bits_to_numoutput</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">BINENC_BITS</span><span class="p">),</span> <span class="n">dest_offset</span><span class="o">=</span><span class="n">BINENC_OFS</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">SERIAL_LENGTH</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="n">VER_LENGTH</span><span class="p">)</span>
 
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MAX_TOKEN_BITS</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MAX_TOKEN_BITS</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">computed_mac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_securid_shortmac</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">CHECKSUM_LENGTH</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">computed_mac</span><span class="p">)</span>
         <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bits_to_numoutput</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
-        <span class="n">arraycpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">CHECKSUM_LENGTH</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">CHECKSUM_LENGTH</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_verify_checksum</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -351,7 +354,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

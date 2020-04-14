@@ -4,7 +4,7 @@ import sys
 import argparse
 from .token import AbstractTokenFile
 from .stoken import StokenFile, DEFAULT_STOKEN_FILENAME
-from .stdin import StdinFile
+from .sdtid import SdtidFile
 from .jsontoken import JSONTokenFile
 from .exceptions import (
     ParseException,
@@ -15,6 +15,7 @@ from .exceptions import (
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--filename',
+                        help="token file (sdtid, stokenrc or json)",
                         dest='filename',
                         default=DEFAULT_STOKEN_FILENAME)
     parser.add_argument('--password',
@@ -38,7 +39,7 @@ def main() -> None:
                 f = StokenFile(args.filename)
                 token = f.get_token()
             except (FileNotFoundError, ParseException):
-                f = StdinFile(args.filename)
+                f = SdtidFile(args.filename)
         token = f.get_token(args.password)
         if args.export:
             f = JSONTokenFile(token=token)

@@ -16,7 +16,7 @@ if sys.version_info <= (3, 0):
 
 import securid
 from securid.stoken import StokenFile
-# from securid.stdin import StdinFile
+from securid.sdtid import SdtidFile
 from securid.jsontoken import JSONTokenFile
 from securid.exceptions import (
     ParseException,
@@ -115,7 +115,7 @@ class TokenTest(unittest.TestCase):
 class StokenTest(unittest.TestCase):
 
     def test_stoken_file(self):
-        f = StokenFile()
+        f = StokenFile(filename='./tests/stokenrc')
         print(f.get_token())
         print(f.get_token().now())
 
@@ -261,6 +261,18 @@ class JSONTokenFileTest(unittest.TestCase):
             def test_file():
                 JSONTokenFile(filename=f.name)
             self.assertRaises(ParseException, test_file)
+
+
+class SdtidTest(unittest.TestCase):
+
+    def test_stdid_file(self):
+        f = SdtidFile(filename='./tests/random.sdtid')
+        t = f.get_token()
+        self.assertEqual(t.at(0), '54902214')
+        self.assertEqual(t.serial, '530965299048')
+        self.assertEqual(t.digits, 8)
+        self.assertEqual(t.interval, 60)
+        self.assertEqual(t.exp_date, date(2025,4,13))
 
 
 class UtilTest(unittest.TestCase):

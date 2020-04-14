@@ -6,16 +6,22 @@ API documentation
 .. automodule:: securid
    :members:
 
-securid.stdin
+securid.sdtid
 -------------
 
-.. automodule:: securid.stdin
+.. automodule:: securid.sdtid
    :members:
 
 securid.stoken
 --------------
 
 .. automodule:: securid.stoken
+   :members:
+
+securid.jsontoken
+-----------------
+
+.. automodule:: securid.jsontoken
    :members:
 
 securid.exceptions

@@ -21,7 +21,7 @@ from .exceptions import (
 )
 
 __all__ = [
-    'StdinFile',
+    'SdtidFile',
 ]
 
 TOKEN_ENC_IV  = bytes([0x16, 0xa0, 0x9e, 0x66, 0x7f, 0x3b, 0xcc, 0x90,
@@ -33,13 +33,13 @@ TOKEN_MAC_IV  = bytes([0x1b, 0xb6, 0x7a, 0xe8, 0x58, 0x4c, 0xaa, 0x73,
 MAX_HASH_DATA = 65536
 
 
-class StdinFile(AbstractTokenFile):
+class SdtidFile(AbstractTokenFile):
     """
-    Handler for RSA SecurID stdin XML file format.
+    Handler for RSA SecurID sdtid XML file format.
     """
 
     filename: str
-    values: Dict[str, Any]  # stdin values as OrderedDict
+    values: Dict[str, Any]  # file content as OrderedDict
     token: Token
 
     def __init__(self, filename: str) -> None:
@@ -150,7 +150,7 @@ class StdinFile(AbstractTokenFile):
                         dd[k] = v
             return OrderedDict({xml.tag: dd})
         else:
-            return OrderedDict({xml.tag: (xml.text or '').strip()})
+            return OrderedDict({xml.tag: (xml.text or '')})
 
     def get(self, name: str, default: Any = None, kind: Optional[str] = None) -> Any:
         value = self.values['TKNBatch']['TKN'].get(name)
