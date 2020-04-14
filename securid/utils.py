@@ -14,8 +14,7 @@ __all__ = [
     'Bytes',
     'BytesStr',
     'random',
-    'arrayset',
-    'arraycpy',
+    'Bytearray',
     'aes_ecb_encrypt',
     'aes_ecb_decrypt',
     'xor_block',
@@ -25,24 +24,25 @@ __all__ = [
 AES_BLOCK_SIZE = 16
 AES_KEY_SIZE = 16
 
-Bytes = Union[bytes, bytearray]
-BytesStr = Union[bytes, bytearray, str]
+Bytes = Union[bytes, bytearray, 'Bytearray']
+BytesStr = Union[bytes, bytearray, str, 'Bytearray']
 
 
 random = SystemRandom()
 
 
-def arrayset(dest: bytearray, c: int, n: int, dest_offset: int = 0) -> None:
-    dest[dest_offset:dest_offset + n] = [c] * n
+class Bytearray(bytearray):
 
+    def arrayset(self, c: int, n: int, dest_offset: int = 0) -> None:
+        self[dest_offset:dest_offset + n] = [c] * n
 
-def arraycpy(dest: bytearray, src: BytesStr, n: Optional[int] = None, dest_offset: int = 0) -> None:
-    if isinstance(src, str):
-        src = bytes(src, 'ascii')
-    if n is None:
-        n = len(src)
-    n = min(n, len(dest) - dest_offset, len(src))
-    dest[dest_offset:dest_offset + n] = src[0:n]
+    def arraycpy(self, src: BytesStr, n: Optional[int] = None, dest_offset: int = 0) -> None:
+        if isinstance(src, str):
+            src = bytes(src, 'ascii')
+        if n is None:
+            n = len(src)
+        n = min(n, len(self) - dest_offset, len(src))
+        self[dest_offset:dest_offset + n] = src[0:n]
 
 
 def aes_ecb_encrypt(key: Bytes, data: Bytes) -> bytes:

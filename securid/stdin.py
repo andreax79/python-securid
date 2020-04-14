@@ -5,13 +5,12 @@ from datetime import date
 from typing import Any, Optional, Dict
 from collections import OrderedDict
 from xml.etree import cElementTree as ET
-from .token import Token
+from .token import Token, AbstractTokenFile
 from .utils import (
     AES_BLOCK_SIZE,
     AES_KEY_SIZE,
     BytesStr,
-    arrayset,
-    arraycpy,
+    Bytearray,
     aes_ecb_encrypt,
     xor_block,
     cbc_hash
@@ -34,7 +33,7 @@ TOKEN_MAC_IV  = bytes([0x1b, 0xb6, 0x7a, 0xe8, 0x58, 0x4c, 0xaa, 0x73,
 MAX_HASH_DATA = 65536
 
 
-class StdinFile(object):
+class StdinFile(AbstractTokenFile):
     """
     Handler for RSA SecurID stdin XML file format.
     """
@@ -43,11 +42,16 @@ class StdinFile(object):
     values: Dict[str, Any]  # stdin values as OrderedDict
     token: Token
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
         self.filename = filename
         self.parse_file(filename)
 
-    def parse_file(self, filename) -> None:
+    def parse_file(self, filename: str) -> None:
+        """
+            Parse stokenrc file, return token as string
+
+            :param filename: stokenrc file path
+        """
         try:
             xml = ET.XML(open(filename, 'r').read())
         except ET.ParseError:
@@ -93,12 +97,12 @@ class StdinFile(object):
 
     @classmethod
     def hash_password(cls, password: str, salt0: str, salt1: str) -> bytes:
-        key = bytearray(AES_KEY_SIZE)
-        arraycpy(key, salt1)
+        key = Bytearray(AES_KEY_SIZE)
+        key.arraycpy(salt1)
 
-        data = bytearray(0x50)
-        arraycpy(data, password, n=0x20)
-        arraycpy(data, salt0, n=0x20, dest_offset=0x20)
+        data = Bytearray(0x50)
+        data.arraycpy(password, n=0x20)
+        data.arraycpy(salt0, n=0x20, dest_offset=0x20)
 
         result = bytes(AES_KEY_SIZE)
         iv = bytes(AES_BLOCK_SIZE)
@@ -110,24 +114,24 @@ class StdinFile(object):
 
     @classmethod
     def decrypt_secret(cls, enc_bin: bytes, str0: bytes, key: bytes) -> bytes:
-        result = bytearray(AES_KEY_SIZE)
-        arraycpy(result, 'Secret', n=8)
-        arraycpy(result, str0, n=8, dest_offset=8)
-        return xor_block(aes_ecb_encrypt(key, result), enc_bin)
+        buf = Bytearray(AES_KEY_SIZE)
+        buf.arraycpy('Secret', n=8)
+        buf.arraycpy(str0, n=8, dest_offset=8)
+        return xor_block(aes_ecb_encrypt(key, buf), enc_bin)
 
     @classmethod
     def decrypt_enc_seed(cls, enc_bin: bytes, str0: str, key: bytes) -> bytes:
-        result = bytearray(AES_KEY_SIZE)
-        arraycpy(result, str0, n=8)
-        arraycpy(result, 'Seed', n=8, dest_offset=8)
-        return xor_block(aes_ecb_encrypt(key, result), enc_bin)
+        buf = Bytearray(AES_KEY_SIZE)
+        buf.arraycpy(str0, n=8)
+        buf.arraycpy('Seed', n=8, dest_offset=8)
+        return xor_block(aes_ecb_encrypt(key, buf), enc_bin)
 
     @classmethod
     def calc_key(cls, str0: str, str1: str, key: bytes, iv: bytes) -> bytes:
-        data = bytearray(64)
-        arraycpy(data, str0, n=32)
-        arraycpy(data, str1, n=32, dest_offset=32)
-        return cbc_hash(key, iv, data)
+        buf = Bytearray(64)
+        buf.arraycpy(str0, n=32)
+        buf.arraycpy(str1, n=32, dest_offset=32)
+        return cbc_hash(key, iv, buf)
 
     @classmethod
     def xml_to_dict(cls, xml: ET.Element) -> Dict[str, Any]:
@@ -170,12 +174,13 @@ class StdinFile(object):
 class SessionHash(object):
     pos: int = 0
     padding: int = 0
-    data: bytearray
+    data: Bytearray
 
     def __init__(self) -> None:
-        self.data = bytearray(MAX_HASH_DATA)
+        self.data = Bytearray(MAX_HASH_DATA)
 
     def recursive_hash(self, name: str, node: Dict[str, Any]) -> None:
+        # from https://github.com/cernekee/stoken
         for k, v in node.items():
             if k.endswith('MAC'):
                 continue
@@ -185,9 +190,9 @@ class SessionHash(object):
                 self.recursive_hash(longname, v)
             else:
                 if not v:
-                    # An empty string is valid XML but it might violate
+                    # "An empty string is valid XML but it might violate
                     # the sdtid format.  We'll handle it the same bizarre
-                    # way as RSA just to be safe.
+                    # way as RSA just to be safe."
                     data = '%s </%s>\n' % (longname, name)
                     self._append_data(data)
                 else:
@@ -197,7 +202,7 @@ class SessionHash(object):
                     if length <= 16 and length < remain:
                         self.pos = self.pos & ~0xf
                         self._append_data(data, n=min(len(data), remain))
-                        arrayset(self.data, 0, dest_offset=self.pos + len(data), n=self.padding)
+                        self.data.arrayset(0, dest_offset=self.pos + len(data), n=self.padding)
                 #  This doesn't really make sense but it's required for compatibility
                 self.pos = self.pos + len(data) + self.padding
                 self.padding = self.pos & 0xf or 0x10

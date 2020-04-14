@@ -5,13 +5,17 @@ import os.path
 import math
 from datetime import date
 from typing import Union, Optional
-from .token import Token
+from .token import (
+    SERIAL_LENGTH,
+    Token,
+    AbstractTokenFile
+)
 from .utils import (
     AES_KEY_SIZE,
     Bytes,
     aes_ecb_encrypt,
     aes_ecb_decrypt,
-    arraycpy
+    Bytearray
 )
 from .exceptions import (
     ParseException,
@@ -42,7 +46,6 @@ FLD_NUMSECONDS_MASK     = 0x03 << FLD_NUMSECONDS_SHIFT
 TOKEN_BITS_PER_CHAR     = 3
 STOKEN_MAGIC            = bytes([0xd8, 0xf5, 0x32, 0x53, 0x82, 0x89])
 VER_LENGTH              = 1
-SERIAL_LENGTH           = 12
 CHECKSUM_BITS           = 15
 CHECKSUM_LENGTH         = int(CHECKSUM_BITS / TOKEN_BITS_PER_CHAR)
 BINENC_BITS             = 189
@@ -54,7 +57,7 @@ MIN_TOKEN_LENGTH        = int((MIN_TOKEN_BITS / TOKEN_BITS_PER_CHAR) + SERIAL_LE
 SECURID_EPOCH           = 730120  # 2000/01/01 proleptic Gregorian ordinal
 
 
-class StokenFile(object):
+class StokenFile(AbstractTokenFile):
     """
     Handler for stokenrc file format
     """
@@ -66,7 +69,7 @@ class StokenFile(object):
     def __init__(self,
                  filename: Optional[str] = DEFAULT_STOKEN_FILENAME,
                  data: Union[Optional[bytes], Optional[bytearray], Optional[str]] = None,
-                 token: Optional[Token] = None):
+                 token: Optional[Token] = None) -> None:
         """
             :param filename: stokenrc file path
             :param data: token as string in stokenrc format
@@ -134,22 +137,22 @@ class StokenFile(object):
         enc_seed = aes_ecb_encrypt(key_hash, self.token.seed)
         seed_hash = self._short_hash(self._securid_mac(self.token.seed))
 
-        d = bytearray(int(MAX_TOKEN_BITS / 8 + 2))
-        arraycpy(d, enc_seed, n=AES_KEY_SIZE, dest_offset=0)
+        d = Bytearray(int(MAX_TOKEN_BITS / 8 + 2))
+        d.arraycpy(enc_seed, n=AES_KEY_SIZE, dest_offset=0)
         self._set_bits(d, 128, 16, flags)
         self._set_bits(d, 159, 15, seed_hash)
         self._set_bits(d, 144, 14, (self.token.exp_date.toordinal() - SECURID_EPOCH) if self.token.exp_date else 0)
 
-        data = bytearray(81)
-        arraycpy(data, b'2', dest_offset=0)  # version
-        arraycpy(data, self._bits_to_numoutput(d, BINENC_BITS), dest_offset=BINENC_OFS)
-        arraycpy(data, self.token.serial, n=SERIAL_LENGTH, dest_offset=VER_LENGTH)
+        data = Bytearray(81)
+        data.arraycpy(b'2', dest_offset=0)  # version
+        data.arraycpy(self._bits_to_numoutput(d, BINENC_BITS), dest_offset=BINENC_OFS)
+        data.arraycpy(self.token.serial, n=SERIAL_LENGTH, dest_offset=VER_LENGTH)
 
-        d = bytearray(int(MAX_TOKEN_BITS / 8 + 2))
+        d = Bytearray(int(MAX_TOKEN_BITS / 8 + 2))
         computed_mac = self._securid_shortmac(data[:len(data) - CHECKSUM_LENGTH])
         self._set_bits(d, 0, 15, computed_mac)
         t = self._bits_to_numoutput(d, 15)
-        arraycpy(data, t, dest_offset=len(data) - CHECKSUM_LENGTH)
+        data.arraycpy(t, dest_offset=len(data) - CHECKSUM_LENGTH)
 
         self._verify_checksum(data)
         self.data = bytes(data)

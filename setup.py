@@ -34,5 +34,4 @@ setup(name='securid',
           ],
       },
       test_suite='test',
-      tests_require=['nose'],
-)
+      tests_require=['nose'])

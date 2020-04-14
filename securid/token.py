@@ -3,13 +3,13 @@
 import binascii
 import string
 from datetime import datetime, date
+from abc import ABC, abstractmethod
 from typing import Any, Union, Optional
 from .utils import (
     AES_KEY_SIZE,
     BytesStr,
     random,
-    arrayset,
-    arraycpy,
+    Bytearray,
     aes_ecb_encrypt,
 )
 from .exceptions import (
@@ -18,6 +18,7 @@ from .exceptions import (
 
 __all__ = [
     'Token',
+    'AbstractTokenFile',
     'SERIAL_LENGTH'
 ]
 
@@ -122,10 +123,10 @@ class Token(object):
 
     @classmethod
     def _key_from_time(cls, bcd_time: bytes, bcd_time_bytes: int, serial: str) -> bytes:
-        key = bytearray(AES_KEY_SIZE)
-        arrayset(key, 0xaa, 8)
-        arraycpy(key, bcd_time, n=bcd_time_bytes)
-        arrayset(key, 0xbb, 4, dest_offset=12)
+        key = Bytearray(AES_KEY_SIZE)
+        key.arrayset(0xaa, 8)
+        key.arraycpy(bcd_time, n=bcd_time_bytes)
+        key.arrayset(0xbb, 4, dest_offset=12)
         # write BCD-encoded partial serial number
         for i, p in enumerate(range(4, 12, 2)):
             key[i + 8] = ((ord(serial[p]) - ord('0')) << 4) | (ord(serial[p + 1]) - ord('0'))
@@ -160,3 +161,24 @@ class Token(object):
 
     def __str__(self) -> str:
         return ' '.join('%s: %s' % (k, self._fmt(k, v)) for k, v in sorted(self.__dict__.items()))
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Token) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other: Any) -> bool:
+        return not self.__eq__(other)
+
+
+class AbstractTokenFile(ABC):
+    """
+    Abstract token files handler
+    """
+
+    @abstractmethod
+    def get_token(self, password: Optional[str] = None) -> Token:  # pragma: no cover
+        """
+            Return the Token instance
+
+            :param password: optional password for decrypting the token
+        """
+        raise NotImplementedError

@@ -4,8 +4,10 @@ import os
 import os.path
 import sys
 import unittest
+import json
 from datetime import datetime, timedelta, date
 from Crypto import Random
+from tempfile import NamedTemporaryFile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 if sys.version_info <= (3, 0):
@@ -14,10 +16,16 @@ if sys.version_info <= (3, 0):
 
 import securid
 from securid.stoken import StokenFile
-from securid.stdin import StdinFile
+# from securid.stdin import StdinFile
+from securid.jsontoken import JSONTokenFile
+from securid.exceptions import (
+    ParseException,
+    InvalidSeed,
+    InvalidSerial
+)
 from securid.utils import (
     AES_KEY_SIZE,
-    arrayset,
+    Bytearray,
     aes_ecb_encrypt,
     aes_ecb_decrypt,
     cbc_hash
@@ -76,6 +84,7 @@ class TokenTest(unittest.TestCase):
         t2 = securid.Token().random(serial=serial, exp_date='2123-01-02')
         self.assertEqual(t1.exp_date, date(2123,1,2))
         self.assertEqual(t2.exp_date, date(2123,1,2))
+        self.assertNotEqual(t1, t2)
 
     def test_random(self):
         serial = b'000123456789'
@@ -190,11 +199,75 @@ class StokenTest(unittest.TestCase):
         for i in range(0, 10):
             self.assertEqual(sf2.get_token().at(i * 1000), token.at(i * 1000))
 
+class JSONTokenFileTest(unittest.TestCase):
+
+    def test_parse(self):
+        j = """
+        {
+            "digits": 6,
+            "exp_date": "2099-12-31",
+            "period": 60,
+            "secret": [185, 175, 88, 111, 163, 93, 249, 121, 123, 142, 90, 135, 236, 223, 13, 137],
+            "serial": "125966947139",
+            "type": "SecurID"
+        }
+        """
+        f = JSONTokenFile(data=j)
+        self.assertEqual(f.get_token().exp_date, date(2099,12,31))
+        self.assertEqual(f.get_token().seed, b'\xb9\xafXo\xa3]\xf9y{\x8eZ\x87\xec\xdf\r\x89')
+        self.assertEqual(f.get_token().serial, '125966947139')
+        self.assertEqual(f.get_token().digits, 6)
+        self.assertEqual(f.get_token().interval, 60)
+        d = json.loads(j)
+        f2 = JSONTokenFile(data=d)
+        self.assertEqual(f.get_token(), f2.get_token())
+
+    def test_export(self):
+        t1 = securid.Token().random(exp_date=date(2000,1,1))
+        f1 = JSONTokenFile(token=t1)
+        data = f1.export_token()
+        f2 = JSONTokenFile(data=data)
+        t2 = f2.get_token()
+        self.assertEqual(t1, t2)
+        def test_ex1():
+            f = JSONTokenFile(token=securid.Token(serial=t1.serial, exp_date=t1.exp_date))
+            f.export_token()
+        self.assertRaises(InvalidSeed, test_ex1)
+        def test_ex2():
+            f = JSONTokenFile(token=securid.Token(serial=t1.serial, seed=t1.seed, exp_date=t1.exp_date))
+            f.get_token().serial = None
+            f.export_token()
+        self.assertRaises(InvalidSerial, test_ex2)
+        def test_ex3():
+            f = JSONTokenFile(token=securid.Token(serial=t1.serial, seed=t1.seed, exp_date=t1.exp_date))
+            f.get_token().serial = 'x'
+            f.export_token()
+        self.assertRaises(InvalidSerial, test_ex3)
+
+    def test_file(self):
+        with NamedTemporaryFile() as f:
+            t1 = securid.Token().random(exp_date=date(2000,1,1))
+            f1 = JSONTokenFile(token=t1)
+            f.write(f1.export_token())
+            f.flush()
+            f2 = JSONTokenFile(filename=f.name)
+            t2 = f2.get_token()
+            self.assertEqual(t1, t2)
+
+    def test_exceptions(self):
+        with NamedTemporaryFile() as f:
+            f.write(b'bla')
+            f.flush()
+            def test_file():
+                JSONTokenFile(filename=f.name)
+            self.assertRaises(ParseException, test_file)
+
+
 class UtilTest(unittest.TestCase):
 
     def test_arrayset(self):
-        a = bytearray(6)
-        arrayset(a, 0xff, n=2, dest_offset=3)
+        a = Bytearray(6)
+        a.arrayset(0xff, n=2, dest_offset=3)
         self.assertEqual(a, bytes([0,0,0,0xff,0xff,0]))
 
     def test_aes_ecb(self):

@@ -2,6 +2,7 @@ python-securid - RSA SecurID 128-bit Token Library
 ==================================================
 
 python-securid is a Python library for generating RSA SecurID 128-bit compatible token codes.
+(Python port of `stoken <https://github.com/cernekee/stoken>`_).
 
 Installation
 ------------
