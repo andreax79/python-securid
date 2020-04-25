@@ -108,8 +108,8 @@ class TokenTest(unittest.TestCase):
     def test_repl(self):
         seed = '967863726e4a54c7cec668012e7302a6'
         serial = b'000123456789'
-        t = securid.Token(serial=serial, seed=seed, interval=30)
-        self.assertEqual(repr(t), "{'digits': '6', 'exp_date': 'None', 'interval': '30', 'seed': '3936373836333732366534613534633763656336363830313265373330326136', 'serial': '000123456789'}")
+        t = securid.Token(serial=serial, seed=seed, interval=30, label='test')
+        self.assertEqual(repr(t), "{'digits': '6', 'exp_date': '', 'interval': '30', 'issuer': '', 'label': 'test', 'seed': '3936373836333732366534613534633763656336363830313265373330326136', 'serial': '000123456789'}")
 
 
 class StokenTest(unittest.TestCase):

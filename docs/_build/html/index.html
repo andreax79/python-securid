@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>python-securid - RSA SecurID 128-bit Token Library &#8212; securid 0.9.1 documentation</title>
+    <title>python-securid - RSA SecurID 128-bit Token Library &#8212; securid 0.9.2 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">securid 0.9.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">securid 0.9.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -38,7 +38,8 @@
   <div class="section" id="python-securid-rsa-securid-128-bit-token-library">
 <h1>python-securid - RSA SecurID 128-bit Token Library<a class="headerlink" href="#python-securid-rsa-securid-128-bit-token-library" title="Permalink to this headline">¶</a></h1>
 <p>python-securid is a Python library for generating RSA SecurID 128-bit compatible token codes.
-(Python port of <a class="reference external" href="https://github.com/cernekee/stoken">stoken</a>).</p>
+(Python port of <a class="reference external" href="https://github.com/cernekee/stoken">stoken</a>).
+This project is not affiliated with or endorsed by RSA Security.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">securid</span>
@@ -66,7 +67,7 @@ $ cat my.json
 <div class="section" id="sdtid-file">
 <h3>Sdtid File<a class="headerlink" href="#sdtid-file" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
-<span class="kn">from</span> <span class="nn">securid.sdtid</span> <span class="kn">import</span> <span class="n">SdtidFile</span>
+<span class="kn">from</span> <span class="nn">securid.sdtid</span> <span class="k">import</span> <span class="n">SdtidFile</span>
 
 <span class="c1"># Read sdtid file</span>
 <span class="n">sdtid</span> <span class="o">=</span> <span class="n">SdtidFile</span><span class="p">(</span><span class="s1">&#39;filename.sdtid&#39;</span><span class="p">)</span>
@@ -80,7 +81,7 @@ $ cat my.json
 <div class="section" id="stoken-file">
 <h3>Stoken File<a class="headerlink" href="#stoken-file" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
-<span class="kn">from</span> <span class="nn">securid.stoken</span> <span class="kn">import</span> <span class="n">StokenFile</span>
+<span class="kn">from</span> <span class="nn">securid.stoken</span> <span class="k">import</span> <span class="n">StokenFile</span>
 
 <span class="c1"># Read ~/.stokenrc file</span>
 <span class="n">stoken</span> <span class="o">=</span> <span class="n">StokenFile</span><span class="p">()</span>
@@ -117,7 +118,7 @@ $ cat my.json
 <span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-securid" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="securid.Token">
-<em class="property">class </em><code class="sig-prename descclassname">securid.</code><code class="sig-name descname">Token</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">serial</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">, </span>str<span class="p">, </span>Bytearray<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">seed</span><span class="p">:</span> <span class="n">Union[bytes, None, str]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interval</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">60</span></em>, <em class="sig-param"><span class="n">digits</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">6</span></em>, <em class="sig-param"><span class="n">exp_date</span><span class="p">:</span> <span class="n">Union[datetime.date, None, str]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/token.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">securid.</code><code class="sig-name descname">Token</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">serial</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>bytes<span class="p">, </span>bytearray<span class="p">, </span>str<span class="p">, </span>Bytearray<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">seed</span><span class="p">:</span> <span class="n">Union[bytes, None, str]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">interval</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">60</span></em>, <em class="sig-param"><span class="n">digits</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">6</span></em>, <em class="sig-param"><span class="n">exp_date</span><span class="p">:</span> <span class="n">Union[datetime.date, None, str]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">issuer</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/token.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handler for RSA SecurID 128-bit compatible token codes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -127,6 +128,8 @@ $ cat my.json
 <li><p><strong>interval</strong> – time interval in seconds for OTP (default: 60)</p></li>
 <li><p><strong>digits</strong> – number of digits (default: 6)</p></li>
 <li><p><strong>exp_date</strong> – expiration date</p></li>
+<li><p><strong>issuer</strong> – issuer</p></li>
+<li><p><strong>label</strong> – label</p></li>
 </ul>
 </dd>
 </dl>
@@ -257,6 +260,8 @@ $ cat my.json
 “period”: 60,
 “secret”: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
 “serial”: “000512377827”,
+“issuerInt”: “myorg”,
+“label”: “myaccount”,
 “type”: “SecurID”</p>
 </dd>
 </dl>
@@ -434,11 +439,11 @@ This can occur when password is required for decrypting the token.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">securid 0.9.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">securid 0.9.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.
     </div>
   </body>
 </html>

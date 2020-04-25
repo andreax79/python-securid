@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>securid.sdtid &#8212; securid 0.9.1 documentation</title>
+    <title>securid.sdtid &#8212; securid 0.9.2 documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -40,12 +40,12 @@
 <span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">ET</span>
-<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="n">Token</span><span class="p">,</span> <span class="n">AbstractTokenFile</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="k">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+<span class="kn">from</span> <span class="nn">.token</span> <span class="k">import</span> <span class="n">Token</span><span class="p">,</span> <span class="n">AbstractTokenFile</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">AES_BLOCK_SIZE</span><span class="p">,</span>
     <span class="n">AES_KEY_SIZE</span><span class="p">,</span>
     <span class="n">BytesStr</span><span class="p">,</span>
@@ -54,7 +54,7 @@
     <span class="n">xor_block</span><span class="p">,</span>
     <span class="n">cbc_hash</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">ParseException</span><span class="p">,</span>
     <span class="n">InvalidSignature</span>
 <span class="p">)</span>
@@ -81,7 +81,7 @@
     <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>  <span class="c1"># file content as OrderedDict</span>
     <span class="n">token</span><span class="p">:</span> <span class="n">Token</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
@@ -100,7 +100,14 @@
         <span class="n">interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Interval&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
         <span class="n">digits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Digits&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
         <span class="n">exp_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Death&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="n">digits</span><span class="o">=</span><span class="n">digits</span><span class="p">,</span> <span class="n">exp_date</span><span class="o">=</span><span class="n">exp_date</span><span class="p">)</span></div>
+        <span class="n">issuer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Origin&#39;</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;UserLogin&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">serial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span>
+                           <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                           <span class="n">digits</span><span class="o">=</span><span class="n">digits</span><span class="p">,</span>
+                           <span class="n">exp_date</span><span class="o">=</span><span class="n">exp_date</span><span class="p">,</span>
+                           <span class="n">issuer</span><span class="o">=</span><span class="n">issuer</span><span class="p">,</span>
+                           <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SdtidFile.get_token"><a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -215,7 +222,7 @@
     <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Bytearray</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="n">MAX_HASH_DATA</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">recursive_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -285,12 +292,12 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">securid 0.9.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.
     </div>
   </body>
 </html>

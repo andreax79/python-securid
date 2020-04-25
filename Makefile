@@ -18,10 +18,10 @@ typecheck:
 	mypy --strict --no-warn-unused-ignores securid
 
 lint:
-	python setup.py flake8
+	python3 setup.py flake8
 
 release:
-	python ./setup.py bdist_wheel
+	python3 ./setup.py bdist_wheel
 	cd docs; $(MAKE) html
 
 clean:

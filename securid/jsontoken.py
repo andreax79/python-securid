@@ -34,6 +34,8 @@ class JSONTokenFile(AbstractTokenFile):
         "period": 60,
         "secret": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
         "serial": "000512377827",
+        "issuerInt": "myorg",
+        "label": "myaccount",
         "type": "SecurID"
     }
 
@@ -86,7 +88,9 @@ class JSONTokenFile(AbstractTokenFile):
                 interval=dct['period'],
                 exp_date=date.fromisoformat(dct['exp_date']) if dct.get('exp_date') else None,
                 seed=bytes(dct['secret']),
-                serial=dct['serial']
+                serial=dct['serial'],
+                issuer=dct.get('issuerInt'),
+                label=dct.get('label')
             )
             return token
         except json.decoder.JSONDecodeError as ex:
@@ -116,6 +120,8 @@ class JSONTokenFile(AbstractTokenFile):
             'exp_date': self.token.exp_date.isoformat() if self.token.exp_date else '',
             'secret': [x for x in self.token.seed],
             'serial': self.token.serial,
+            'issuerInt': self.token.issuer,
+            'label': self.token.label,
             'type': 'SecurID'
         }, sort_keys=True)
         return bytes(j, 'ascii')

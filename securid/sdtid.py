@@ -61,7 +61,14 @@ class SdtidFile(AbstractTokenFile):
         interval = self.get('Interval', default=60, kind='int')
         digits = self.get('Digits', default=6, kind='int')
         exp_date = self.get('Death', kind='date')
-        self.token = Token(serial=serial, interval=interval, digits=digits, exp_date=exp_date)
+        issuer = self.get('Origin')
+        label = self.get('UserLogin') or serial
+        self.token = Token(serial=serial,
+                           interval=interval,
+                           digits=digits,
+                           exp_date=exp_date,
+                           issuer=issuer,
+                           label=label)
 
     def get_token(self, password: Optional[str] = None) -> Token:
         """

@@ -38,19 +38,25 @@ class Token(object):
     interval: int             # interval in seconds (30 or 60)
     digits: int               # tokencode digits
     exp_date: Optional[date]  # expiration date
+    issuer: Optional[str]     # issuer (origin)
+    label: Optional[str]      # label (userlogin, serial)
 
     def __init__(self,
                  serial: BytesStr = '',
                  seed: Union[Optional[bytes], Optional[str]] = None,
                  interval: int = DEFAULT_INTERVAL,
                  digits: int = DEFAULT_DIGITS,
-                 exp_date: Union[Optional[date], Optional[str]] = None) -> None:
+                 exp_date: Union[Optional[date], Optional[str]] = None,
+                 issuer: Optional[str] = None,
+                 label: Optional[str] = None) -> None:
         """
             :param serial: token serial number
             :param seed: token seed
             :param interval: time interval in seconds for OTP (default: 60)
             :param digits: number of digits (default: 6)
             :param exp_date: expiration date
+            :param issuer: issuer
+            :param label: label
         """
         if not isinstance(serial, str):
             serial = str(serial, 'ascii')
@@ -63,6 +69,8 @@ class Token(object):
         self.interval = interval
         self.digits = digits
         self.exp_date = exp_date
+        self.issuer = issuer
+        self.label = label
 
     def generate_otp(self, input: datetime) -> str:
         """
@@ -137,7 +145,9 @@ class Token(object):
                serial: BytesStr = '',
                interval: int = DEFAULT_INTERVAL,
                digits: int = DEFAULT_DIGITS,
-               exp_date: Optional[date] = None) -> 'Token':
+               exp_date: Optional[date] = None,
+               issuer: Optional[str] = None,
+               label: Optional[str] = None) -> 'Token':
         seed = bytes([random.randint(0, 255) for _ in range(0, AES_KEY_SIZE)])
         """
             Generate a new random token
@@ -146,15 +156,22 @@ class Token(object):
             :param interval: time interval in seconds for OTP (default: 60)
             :param digits: number of digits (default: 6)
             :param exp_date: expiration date
+            :param issuer: issuer
+            :param label: label
             :returns: the generated Token instance
         """
         if not serial:
             serial = ''.join([random.choice(string.digits) for _ in range(0, SERIAL_LENGTH)])
-        return Token(serial=serial, seed=seed, interval=interval, digits=digits, exp_date=exp_date)
+        return Token(serial=serial, seed=seed, interval=interval, digits=digits, exp_date=exp_date, issuer=issuer, label=label)
 
     @classmethod
-    def _fmt(cls, k: str, v: Any) -> Any:
-        return str(binascii.hexlify(v), 'ascii') if cls.__annotations__[k] in [bytes, Optional[bytes]] else str(v)
+    def _fmt(cls, k: str, v: Any) -> str:
+        if v is None:
+            return ''
+        elif cls.__annotations__[k] in [bytes, Optional[bytes]]:
+            return str(binascii.hexlify(v), 'ascii')
+        else:
+            return str(v)
 
     def __repr__(self) -> str:
         return str(dict([(k, self._fmt(k, v)) for k, v in sorted(self.__dict__.items())]))
