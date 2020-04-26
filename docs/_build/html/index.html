@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>python-securid - RSA SecurID 128-bit Token Library &#8212; securid 0.9.2 documentation</title>
+    <title>python-securid - RSA SecurID 128-bit Token Library &#8212; securid 0.9.3 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">securid 0.9.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">securid 0.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -97,7 +97,7 @@ $ cat my.json
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
 
 <span class="n">token</span> <span class="o">=</span> <span class="n">securid</span><span class="o">.</span><span class="n">Token</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">exp_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2030</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-<span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="c1"># =&gt;  digits: 6 exp_date: 2030-01-01 interval: 60 seed: 34b7e942eb6fb35bbf81579dcd9b0522 serial: 922729241304</span>
+<span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="c1"># =&gt;  digits: 6 exp_date: 2030-01-01 interval: 60 issuer:  label:  seed: 34b7e942eb6fb35bbf81579dcd9b0522 serial: 922729241304</span>
 <span class="c1"># Generate OTP</span>
 <span class="n">token</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="c1">#=&gt; &#39;755546&#39;</span>
 </pre></div>
@@ -173,6 +173,17 @@ $ cat my.json
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt id="securid.Token.time_left">
+<code class="sig-name descname">time_left</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">for_time</span><span class="p">:</span> <span class="n">Union[int, datetime.datetime, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/securid/token.html#Token.time_left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.Token.time_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time until next token</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <div class="section" id="module-securid.sdtid">
@@ -195,10 +206,10 @@ $ cat my.json
 <dl class="py method">
 <dt id="securid.sdtid.SdtidFile.parse_file">
 <code class="sig-name descname">parse_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#securid.sdtid.SdtidFile.parse_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse stokenrc file, return token as string</p>
+<dd><p>Parse sdtid file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> – stokenrc file path</p>
+<dd class="field-odd"><p><strong>filename</strong> – sdtid file path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -439,7 +450,7 @@ This can occur when password is required for decrypting the token.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">securid 0.9.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">securid 0.9.3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

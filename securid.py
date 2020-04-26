@@ -1,3 +1,4 @@
 #!/usr/bin/env python
+import sys
 from securid.cli import main
-main()
+sys.exit(main())

@@ -30,6 +30,7 @@ from securid.utils import (
     aes_ecb_decrypt,
     cbc_hash
 )
+from securid import cli
 
 T0 = datetime(2001, 1, 1, 1, 1, 1, 1)
 T1 = datetime(2010, 10, 10, 10, 10, 10, 10)
@@ -312,6 +313,38 @@ class UtilTest(unittest.TestCase):
         h = bytes([0, 154, 82, 250, 182, 234, 117, 60, 149, 75, 56, 40, 13, 72, 139, 18])
         self.assertEqual(cbc_hash(key, iv, b'test'), h)
         self.assertNotEqual(cbc_hash(key, iv, b'TEST'), h)
+
+
+class CliTest(unittest.TestCase):
+
+    def test_show_version(self):
+        self.assertEqual(cli.show_version('securid'), 0)
+
+    def test_expot(self):
+        f = SdtidFile(filename='./tests/random.sdtid')
+        t = f.get_token()
+        self.assertEqual(cli.export(t), 0)
+
+    def test_show_token(self):
+        f = SdtidFile(filename='./tests/random.sdtid')
+        t = f.get_token()
+        self.assertEqual(cli.show_token(t), 0)
+        self.assertEqual(cli.show_token(t, verbose=True), 0)
+
+    def test_interactive(self):
+        f = SdtidFile(filename='./tests/random.sdtid')
+        t = f.get_token()
+        self.assertEqual(cli.interactive(t, test=True), 0)
+
+    def test_main(self):
+        self.assertEqual(cli.main(['-V']), 0)
+        self.assertEqual(cli.main(['-f', './tests/random.sdtid']), 0)
+        self.assertEqual(cli.main(['-f', './tests/random.sdtid', '--password', 'x']), 1)
+        self.assertEqual(cli.main(['-f', './tests/random.sdtid', '--export']), 0)
+        self.assertEqual(cli.main(['--help']), 2)
+        self.assertEqual(cli.main(['--invalid_option']), 2)
+        self.assertEqual(cli.main(['-f', './tests/missing.sdtid']), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

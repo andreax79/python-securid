@@ -28,3 +28,10 @@
 
 - issuer and label fields
 
+## 0.9.3
+
+2020-04-26
+
+- token time left added
+- cli improvements and tests
+

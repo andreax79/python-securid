@@ -72,7 +72,7 @@ Generating a new Token
     import securid
 
     token = securid.Token.random(exp_date=date(2030,1,1))
-    str(token) # =>  digits: 6 exp_date: 2030-01-01 interval: 60 seed: 34b7e942eb6fb35bbf81579dcd9b0522 serial: 922729241304
+    str(token) # =>  digits: 6 exp_date: 2030-01-01 interval: 60 issuer:  label:  seed: 34b7e942eb6fb35bbf81579dcd9b0522 serial: 922729241304
     # Generate OTP
     token.now() #=> '755546'
 

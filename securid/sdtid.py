@@ -39,7 +39,7 @@ class SdtidFile(AbstractTokenFile):
     """
 
     filename: str
-    values: Dict[str, Any]  # file content as OrderedDict
+    values: Dict[str, Any]  # sdtid file as OrderedDict
     token: Token
 
     def __init__(self, filename: str) -> None:
@@ -48,12 +48,13 @@ class SdtidFile(AbstractTokenFile):
 
     def parse_file(self, filename: str) -> None:
         """
-            Parse stokenrc file, return token as string
+            Parse sdtid file
 
-            :param filename: stokenrc file path
+            :param filename: sdtid file path
         """
         try:
-            xml = ET.XML(open(filename, 'r').read())
+            with open(filename, 'r') as f:
+                xml = ET.XML(f.read())
         except ET.ParseError:
             raise ParseException('Error parsing {}'.format(filename))
         self.values = self.xml_to_dict(xml)
