@@ -111,6 +111,19 @@ class TokenTest(unittest.TestCase):
         t = securid.Token(serial=serial, seed=seed, interval=30, label='test')
         self.assertEqual(repr(t), "{'digits': '6', 'exp_date': '', 'interval': '30', 'issuer': '', 'label': 'test', 'seed': '3936373836333732366534613534633763656336363830313265373330326136', 'serial': '000123456789'}")
 
+    def test_time_left(self):
+        t1 = securid.Token().random()
+        self.assertEqual(t1.time_left(T1), 50)
+        self.assertEqual(t1.time_left(T1 + timedelta(seconds=1)), 49)
+        self.assertEqual(t1.time_left(T1 + timedelta(seconds=50)), 60)
+        self.assertEqual(t1.time_left(123456), 24)
+        t2 = securid.Token().random(interval=30)
+        self.assertEqual(t2.time_left(T2), 28)
+        self.assertEqual(t2.time_left(T2 + timedelta(seconds=1)), 27)
+        self.assertEqual(t2.time_left(T2 + timedelta(seconds=28)), 30)
+        self.assertEqual(t2.time_left(123456), 24)
+        self.assertTrue(0 < t2.time_left() <= 30)
+
 
 class StokenTest(unittest.TestCase):
 
@@ -273,6 +286,7 @@ class SdtidTest(unittest.TestCase):
         self.assertEqual(t.digits, 8)
         self.assertEqual(t.interval, 60)
         self.assertEqual(t.exp_date, date(2025,4,13))
+
 
 
 class UtilTest(unittest.TestCase):

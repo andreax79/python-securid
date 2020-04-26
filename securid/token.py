@@ -107,6 +107,21 @@ class Token(object):
         """
         return self.generate_otp(datetime.utcnow())
 
+    def time_left(self, for_time: Union[int, datetime, None] = None) -> int:
+        """
+            Time until next token
+
+            :returns: seconds
+        """
+        if for_time is None:
+            for_time = datetime.utcnow()
+        elif not isinstance(for_time, datetime):
+            for_time = datetime.fromtimestamp(int(for_time))
+        result = ((self.interval - for_time.second) % self.interval)
+        if result == 0:
+            result = self.interval
+        return result
+
     def _compute_bcd_time(self, input: datetime) -> bytes:
         """
             Compute BCD time for the given time
@@ -162,7 +177,13 @@ class Token(object):
         """
         if not serial:
             serial = ''.join([random.choice(string.digits) for _ in range(0, SERIAL_LENGTH)])
-        return Token(serial=serial, seed=seed, interval=interval, digits=digits, exp_date=exp_date, issuer=issuer, label=label)
+        return Token(serial=serial,
+                     seed=seed,
+                     interval=interval,
+                     digits=digits,
+                     exp_date=exp_date,
+                     issuer=issuer,
+                     label=label)
 
     @classmethod
     def _fmt(cls, k: str, v: Any) -> str:
