@@ -88,6 +88,7 @@ class StokenFile(AbstractTokenFile):
             self.filename = os.path.expanduser(filename)
             self.data = self.parse_file(self.filename)
             self.token = self.v2_decode_token(self.data)
+            self.token.pin = self.parse_file_pin(self.filename)
 
     @classmethod
     def parse_file(cls, filename: str) -> bytes:
@@ -104,6 +105,22 @@ class StokenFile(AbstractTokenFile):
                     if k == b'token':
                         return v
         raise ParseException('Error parsing {}'.format(filename))
+
+    @classmethod
+    def parse_file_pin(cls, filename: str) -> int:
+        """
+            Parse stokenrc file, return pin as int or 0 if not found
+
+            :param filename: stokenrc file path
+        """
+        with open(filename, 'rb') as f:
+            for line in f.readlines():
+                line = line.strip()
+                if b' ' in line:
+                    k, v = line.split(b' ', 1)
+                    if k == b'pin':
+                        return int(v)
+        return 0
 
     @classmethod
     def v2_decode_token(cls, data: Bytes) -> Token:

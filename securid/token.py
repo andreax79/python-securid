@@ -2,18 +2,19 @@
 
 import binascii
 import string
-from datetime import datetime, date
 from abc import ABC, abstractmethod
+from datetime import datetime, date
 from typing import Any, Union, Optional
+
+from .exceptions import (
+    InvalidSeed
+)
 from .utils import (
     AES_KEY_SIZE,
     BytesStr,
     random,
     Bytearray,
     aes_ecb_encrypt,
-)
-from .exceptions import (
-    InvalidSeed
 )
 
 __all__ = [
@@ -33,13 +34,13 @@ class Token(object):
     Handler for RSA SecurID 128-bit compatible token codes.
     """
 
-    serial: str               # serial number
-    seed: Optional[bytes]     # decoded AES key
-    interval: int             # interval in seconds (30 or 60)
-    digits: int               # tokencode digits
+    serial: str  # serial number
+    seed: Optional[bytes]  # decoded AES key
+    interval: int  # interval in seconds (30 or 60)
+    digits: int  # tokencode digits
     exp_date: Optional[date]  # expiration date
-    issuer: Optional[str]     # issuer (origin)
-    label: Optional[str]      # label (userlogin, serial)
+    issuer: Optional[str]  # issuer (origin)
+    label: Optional[str]  # label (userlogin, serial)
 
     def __init__(self,
                  serial: BytesStr = '',
@@ -48,7 +49,8 @@ class Token(object):
                  digits: int = DEFAULT_DIGITS,
                  exp_date: Union[Optional[date], Optional[str]] = None,
                  issuer: Optional[str] = None,
-                 label: Optional[str] = None) -> None:
+                 label: Optional[str] = None,
+                 pin: Optional[int] = 0) -> None:
         """
             :param serial: token serial number
             :param seed: token seed
@@ -71,8 +73,9 @@ class Token(object):
         self.exp_date = exp_date
         self.issuer = issuer
         self.label = label
+        self.pin = pin
 
-    def generate_otp(self, input: datetime) -> str:
+    def generate_otp(self, input: datetime, pin: int = 0000) -> str:
         """
             Generate OTP
 
@@ -85,9 +88,10 @@ class Token(object):
         bcd_time = self._compute_bcd_time(input)
         for bcd_time_bytes in BCD_TIME_BYTES:
             key = aes_ecb_encrypt(key, self._key_from_time(bcd_time, bcd_time_bytes, self.serial))
-        return self._output_code(input, key)
 
-    def at(self, for_time: Union[int, datetime]) -> str:
+        return self._token_pin(self._output_code(input, key), pin)
+
+    def at(self, for_time: Union[int, datetime], pin: int = 0000) -> str:
         """
             Generate OTP for the given time
             (accepts either a Unix timestamp integer or a datetime object)
@@ -97,15 +101,15 @@ class Token(object):
         """
         if not isinstance(for_time, datetime):
             for_time = datetime.fromtimestamp(int(for_time))
-        return self.generate_otp(for_time)
+        return self.generate_otp(for_time, pin)
 
-    def now(self) -> str:
+    def now(self, pin: int = 0000) -> str:
         """
             Generate the current time OTP
 
             :returns: OTP value
         """
-        return self.generate_otp(datetime.utcnow())
+        return self.generate_otp(datetime.utcnow(), pin)
 
     def time_left(self, for_time: Union[int, datetime, None] = None) -> int:
         """
@@ -143,6 +147,26 @@ class Token(object):
             i = (input.minute & 0x03) << 2
         tokencode = (key[i + 0] << 24) | (key[i + 1] << 16) | (key[i + 2] << 8) | key[i + 3]
         return ('0' * self.digits + str(tokencode))[-self.digits:]
+
+    def _token_pin(self, token: str, pin: int = 0) -> str:
+        """
+            Support for RSA PIN
+
+            :param token: the generated OTP token
+            :param pin: the RSA PIN to integrate
+
+        """
+        if not pin:
+            pin = self.pin
+
+        resolved_token = ""
+        for i in range(0, len(token)):
+            c = int(token[-1])
+            token = token[0:-1]
+            c += pin % 10
+            pin = int(pin / 10)
+            resolved_token = "{}{}".format(int(c % 10), resolved_token)
+        return resolved_token
 
     @classmethod
     def _key_from_time(cls, bcd_time: bytes, bcd_time_bytes: int, serial: str) -> bytes:
