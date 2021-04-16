@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from typing import Union, Optional
-from Crypto.Cipher import AES
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 try:  # pragma: no cover
     from secrets import SystemRandom  # (Python >= 3.6) type: ignore
 except ImportError:  # pragma: no cover
@@ -49,14 +49,18 @@ def aes_ecb_encrypt(key: Bytes, data: Bytes) -> bytes:
     """
         Encrypt data with the key using AES-128 ECB
     """
-    return AES.new(bytes(key), AES.MODE_ECB).encrypt(bytes(data))
+    cipher = Cipher(algorithms.AES(bytes(key)), modes.ECB())
+    encryptor = cipher.encryptor()
+    return encryptor.update(bytes(data))  # + encryptor.finalize()
 
 
 def aes_ecb_decrypt(key: Bytes, data: Bytes) -> bytes:
     """
         Decrypt data with the key using AES-128 ECB
     """
-    return AES.new(bytes(key), AES.MODE_ECB).decrypt(bytes(data))
+    cipher = Cipher(algorithms.AES(bytes(key)), modes.ECB())
+    decryptor = cipher.decryptor()
+    return decryptor.update(bytes(data))  # + decryptor.finalize()
 
 
 def xor_block(a: Bytes, b: Bytes) -> bytes:
