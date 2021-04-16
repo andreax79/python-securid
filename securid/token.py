@@ -41,6 +41,7 @@ class Token(object):
     exp_date: Optional[date]  # expiration date
     issuer: Optional[str]  # issuer (origin)
     label: Optional[str]  # label (userlogin, serial)
+    pin: Optional[int]  # PIN
 
     def __init__(self,
                  serial: BytesStr = '',
@@ -59,6 +60,7 @@ class Token(object):
             :param exp_date: expiration date
             :param issuer: issuer
             :param label: label
+            :param pin: PIN (default: 0)
         """
         if not isinstance(serial, str):
             serial = str(serial, 'ascii')
@@ -75,7 +77,7 @@ class Token(object):
         self.label = label
         self.pin = pin
 
-    def generate_otp(self, input: datetime, pin: int = 0000) -> str:
+    def generate_otp(self, input: datetime, pin: Optional[int] = None) -> str:
         """
             Generate OTP
 
@@ -91,7 +93,7 @@ class Token(object):
 
         return self._token_pin(self._output_code(input, key), pin)
 
-    def at(self, for_time: Union[int, datetime], pin: int = 0000) -> str:
+    def at(self, for_time: Union[int, datetime], pin: Optional[int] = None) -> str:
         """
             Generate OTP for the given time
             (accepts either a Unix timestamp integer or a datetime object)
@@ -103,7 +105,7 @@ class Token(object):
             for_time = datetime.fromtimestamp(int(for_time))
         return self.generate_otp(for_time, pin)
 
-    def now(self, pin: int = 0000) -> str:
+    def now(self, pin: Optional[int] = None) -> str:
         """
             Generate the current time OTP
 
@@ -148,25 +150,26 @@ class Token(object):
         tokencode = (key[i + 0] << 24) | (key[i + 1] << 16) | (key[i + 2] << 8) | key[i + 3]
         return ('0' * self.digits + str(tokencode))[-self.digits:]
 
-    def _token_pin(self, token: str, pin: int = 0) -> str:
+    def _token_pin(self, token: str, pin: Optional[int] = None) -> str:
         """
             Support for RSA PIN
 
             :param token: the generated OTP token
             :param pin: the RSA PIN to integrate
-
+            :returns: OTP code
         """
-        if not pin:
-            pin = self.pin
-
-        resolved_token = ""
-        for i in range(0, len(token)):
-            c = int(token[-1])
-            token = token[0:-1]
-            c += pin % 10
-            pin = int(pin / 10)
-            resolved_token = "{}{}".format(int(c % 10), resolved_token)
-        return resolved_token
+        pin = pin if pin is not None else self.pin
+        if pin is None:
+            return token
+        else:
+            resolved_token = ""
+            for i in range(0, len(token)):
+                c = int(token[-1])
+                token = token[0:-1]
+                c += pin % 10
+                pin = int(pin / 10)
+                resolved_token = "{}{}".format(int(c % 10), resolved_token)
+            return resolved_token
 
     @classmethod
     def _key_from_time(cls, bcd_time: bytes, bcd_time_bytes: int, serial: str) -> bytes:
@@ -186,7 +189,8 @@ class Token(object):
                digits: int = DEFAULT_DIGITS,
                exp_date: Optional[date] = None,
                issuer: Optional[str] = None,
-               label: Optional[str] = None) -> 'Token':
+               label: Optional[str] = None,
+               pin: Optional[int] = None) -> 'Token':
         seed = bytes([random.randint(0, 255) for _ in range(0, AES_KEY_SIZE)])
         """
             Generate a new random token
@@ -197,6 +201,7 @@ class Token(object):
             :param exp_date: expiration date
             :param issuer: issuer
             :param label: label
+            :param pin: PIN
             :returns: the generated Token instance
         """
         if not serial:
@@ -207,7 +212,8 @@ class Token(object):
                      digits=digits,
                      exp_date=exp_date,
                      issuer=issuer,
-                     label=label)
+                     label=label,
+                     pin=pin)
 
     @classmethod
     def _fmt(cls, k: str, v: Any) -> str:

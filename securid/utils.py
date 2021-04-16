@@ -50,8 +50,8 @@ def aes_ecb_encrypt(key: Bytes, data: Bytes) -> bytes:
         Encrypt data with the key using AES-128 ECB
     """
     cipher = Cipher(algorithms.AES(bytes(key)), modes.ECB())
-    encryptor = cipher.encryptor()
-    return encryptor.update(bytes(data))  # + encryptor.finalize()
+    encryptor = cipher.encryptor()  # type: ignore
+    return encryptor.update(bytes(data))  # type: ignore
 
 
 def aes_ecb_decrypt(key: Bytes, data: Bytes) -> bytes:
@@ -59,8 +59,8 @@ def aes_ecb_decrypt(key: Bytes, data: Bytes) -> bytes:
         Decrypt data with the key using AES-128 ECB
     """
     cipher = Cipher(algorithms.AES(bytes(key)), modes.ECB())
-    decryptor = cipher.decryptor()
-    return decryptor.update(bytes(data))  # + decryptor.finalize()
+    decryptor = cipher.decryptor()  # type: ignore
+    return decryptor.update(bytes(data))  # type: ignore
 
 
 def xor_block(a: Bytes, b: Bytes) -> bytes:

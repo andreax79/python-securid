@@ -34,14 +34,14 @@ EXIT_FAILURE = 1
 EXIT_PARSER_ERROR = 2
 
 
-def show_token(token: Token, verbose: bool = False) -> int:
+def show_token(token: Token, pin: Optional[int] = None, verbose: bool = False) -> int:
     " Show token "
     if verbose:
         for_time = datetime.utcnow()
         print(token)
-        print('{} {:2}s'.format(token.at(for_time), token.time_left(for_time)))
+        print('{} {:2}s'.format(token.at(for_time, pin=pin), token.time_left(for_time)))
     else:
-        print(token.now())
+        print(token.now(pin=pin))
     return EXIT_SUCCESS
 
 
@@ -53,14 +53,14 @@ def export(token: Token) -> int:
     return EXIT_SUCCESS
 
 
-def interactive(token: Token, test: bool = False) -> int:
+def interactive(token: Token, test: bool = False, pin: Optional[int] = None) -> int:
     " Show the code every second until interrupted "
     try:
         while True:
             for_time = datetime.utcnow()
             left = token.time_left(for_time)
             bar = ('#' * left) + ('.' * (token.interval - left))
-            print('{} {:2}s [{}]'.format(token.at(for_time), left, bar))
+            print('{} {:2}s [{}]'.format(token.at(for_time, pin=pin), left, bar))
             if test:
                 raise KeyboardInterrupt
             time.sleep(1)
@@ -98,6 +98,9 @@ def main(args: Optional[List[str]] = None) -> int:
                         default=DEFAULT_STOKEN_FILENAME)
     parser.add_argument('--password',
                         dest='password')
+    parser.add_argument('--pin',
+                        type=int,
+                        dest='pin')
     parser.add_argument('--export',
                         help="export token into JSON",
                         action='store_true',
@@ -129,9 +132,9 @@ def main(args: Optional[List[str]] = None) -> int:
         if cli_args.export:
             return export(token)
         elif cli_args.interactive:
-            return interactive(token)
+            return interactive(token, pin=cli_args.pin)
         else:
-            return show_token(token, verbose=cli_args.verbose)
+            return show_token(token, pin=cli_args.pin, verbose=cli_args.verbose)
     except ArgumentParserException:
         return EXIT_PARSER_ERROR
     except InvalidSignature:

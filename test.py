@@ -124,6 +124,18 @@ class TokenTest(unittest.TestCase):
         self.assertEqual(t2.time_left(123456), 24)
         self.assertTrue(0 < t2.time_left() <= 30)
 
+    def test_pin(self):
+        seed = '9e2cdb3468bd84fe6cf42570d1f8559c'
+        serial = '000123456789'
+        pin = 1234
+        t = securid.Token(serial=serial, seed=seed, pin=pin)
+        self.assertEqual(t.at(T0), '079498')
+        self.assertEqual(t.at(T0 + s30), '079498')
+        self.assertNotEqual(t.at(T0 + s60), '079498')
+
+        t2 = securid.Token(serial=serial, seed=seed)
+        self.assertNotEqual(t.at(T0), t2.at(T0))
+
 
 class StokenTest(unittest.TestCase):
 
@@ -339,9 +351,16 @@ class CliTest(unittest.TestCase):
         self.assertEqual(cli.main(['-f', './tests/random.sdtid']), 0)
         self.assertEqual(cli.main(['-f', './tests/random.sdtid', '--password', 'x']), 1)
         self.assertEqual(cli.main(['-f', './tests/random.sdtid', '--export']), 0)
+        self.assertEqual(cli.main(['-f', './tests/random.sdtid', '--pin', '1234']), 0)
         self.assertEqual(cli.main(['--help']), 2)
         self.assertEqual(cli.main(['--invalid_option']), 2)
         self.assertEqual(cli.main(['-f', './tests/missing.sdtid']), 1)
+
+    def test_pin(self):
+        f = SdtidFile(filename='./tests/random.sdtid')
+        t = f.get_token()
+        self.assertEqual(cli.show_token(t), 0)
+        self.assertEqual(cli.show_token(t, pin=1234, verbose=True), 0)
 
 
 if __name__ == '__main__':

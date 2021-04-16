@@ -31,6 +31,7 @@ class JSONTokenFile(AbstractTokenFile):
     {
         "digits": 6,
         "exp_date": "2035-12-31",
+        "pin": 1234,
         "period": 60,
         "secret": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
         "serial": "000512377827",
@@ -90,7 +91,8 @@ class JSONTokenFile(AbstractTokenFile):
                 seed=bytes(dct['secret']),
                 serial=dct['serial'],
                 issuer=dct.get('issuerInt'),
-                label=dct.get('label')
+                label=dct.get('label'),
+                pin=dct.get('pin'),
             )
             return token
         except json.decoder.JSONDecodeError as ex:
@@ -114,14 +116,19 @@ class JSONTokenFile(AbstractTokenFile):
             raise InvalidSerial('Missing serial')
         if len(self.token.serial) != SERIAL_LENGTH:
             raise InvalidSerial('Serial length != {}'.format(SERIAL_LENGTH))
-        j = json.dumps({
+        data = {
             'digits': self.token.digits,
             'period': self.token.interval,
             'exp_date': self.token.exp_date.isoformat() if self.token.exp_date else '',
             'secret': [x for x in self.token.seed],
             'serial': self.token.serial,
-            'issuerInt': self.token.issuer,
-            'label': self.token.label,
             'type': 'SecurID'
-        }, sort_keys=True)
+        }
+        if self.token.issuer is not None:
+            data['issuerInt'] = self.token.issuer
+        if self.token.label is not None:
+            data['label'] = self.token.label
+        if self.token.pin is not None:
+            data['pin'] = self.token.pin
+        j = json.dumps(data, sort_keys=True)
         return bytes(j, 'ascii')
