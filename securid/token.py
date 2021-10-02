@@ -102,7 +102,7 @@ class Token(object):
             :returns: OTP code
         """
         if not isinstance(for_time, datetime):
-            for_time = datetime.fromtimestamp(int(for_time))
+            for_time = datetime.utcfromtimestamp(int(for_time))
         return self.generate_otp(for_time, pin)
 
     def now(self, pin: Optional[int] = None) -> str:
@@ -122,7 +122,7 @@ class Token(object):
         if for_time is None:
             for_time = datetime.utcnow()
         elif not isinstance(for_time, datetime):
-            for_time = datetime.fromtimestamp(int(for_time))
+            for_time = datetime.utcfromtimestamp(int(for_time))
         result = ((self.interval - for_time.second) % self.interval)
         if result == 0:
             result = self.interval

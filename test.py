@@ -4,6 +4,7 @@ import os
 import os.path
 import sys
 import unittest
+import binascii
 import json
 from datetime import datetime, timedelta, date
 from tempfile import NamedTemporaryFile
@@ -293,11 +294,14 @@ class SdtidTest(unittest.TestCase):
     def test_stdid_file(self):
         f = SdtidFile(filename='./tests/random.sdtid')
         t = f.get_token()
-        self.assertEqual(t.at(0), '54902214')
-        self.assertEqual(t.serial, '530965299048')
         self.assertEqual(t.digits, 8)
         self.assertEqual(t.interval, 60)
+        self.assertEqual(t.pin, 0)
         self.assertEqual(t.exp_date, date(2025,4,13))
+        self.assertEqual(t.serial, '530965299048')
+        self.assertEqual(str(binascii.hexlify(t.seed), 'ascii'), '0f3f7439c2f122e0443ca8ea9bc263a7')
+        self.assertEqual(t.at(T0), '27857231')
+        self.assertEqual(t.at(0), '72730214')
 
 
 
