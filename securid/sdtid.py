@@ -13,23 +13,74 @@ from .utils import (
     Bytearray,
     aes_ecb_encrypt,
     xor_block,
-    cbc_hash
+    cbc_hash,
 )
-from .exceptions import (
-    ParseException,
-    InvalidSignature
-)
+from .exceptions import ParseException, InvalidSignature
 
 __all__ = [
     'SdtidFile',
 ]
 
-TOKEN_ENC_IV  = bytes([0x16, 0xa0, 0x9e, 0x66, 0x7f, 0x3b, 0xcc, 0x90,
-                       0x8b, 0x2f, 0xb1, 0x36, 0x6e, 0xa9, 0x57, 0xd3])
-BATCH_MAC_IV  = bytes([0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
-                       0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c])
-TOKEN_MAC_IV  = bytes([0x1b, 0xb6, 0x7a, 0xe8, 0x58, 0x4c, 0xaa, 0x73,
-                       0xb2, 0x57, 0x42, 0xd7, 0x07, 0x8b, 0x83, 0xb8])
+TOKEN_ENC_IV = bytes(
+    [
+        0x16,
+        0xA0,
+        0x9E,
+        0x66,
+        0x7F,
+        0x3B,
+        0xCC,
+        0x90,
+        0x8B,
+        0x2F,
+        0xB1,
+        0x36,
+        0x6E,
+        0xA9,
+        0x57,
+        0xD3,
+    ]
+)
+BATCH_MAC_IV = bytes(
+    [
+        0x2B,
+        0x7E,
+        0x15,
+        0x16,
+        0x28,
+        0xAE,
+        0xD2,
+        0xA6,
+        0xAB,
+        0xF7,
+        0x15,
+        0x88,
+        0x09,
+        0xCF,
+        0x4F,
+        0x3C,
+    ]
+)
+TOKEN_MAC_IV = bytes(
+    [
+        0x1B,
+        0xB6,
+        0x7A,
+        0xE8,
+        0x58,
+        0x4C,
+        0xAA,
+        0x73,
+        0xB2,
+        0x57,
+        0x42,
+        0xD7,
+        0x07,
+        0x8B,
+        0x83,
+        0xB8,
+    ]
+)
 MAX_HASH_DATA = 65536
 
 
@@ -48,9 +99,9 @@ class SdtidFile(AbstractTokenFile):
 
     def parse_file(self, filename: str) -> None:
         """
-            Parse sdtid file
+        Parse sdtid file
 
-            :param filename: sdtid file path
+        :param filename: sdtid file path
         """
         try:
             with open(filename, 'r') as f:
@@ -64,18 +115,20 @@ class SdtidFile(AbstractTokenFile):
         exp_date = self.get('Death', kind='date')
         issuer = self.get('Origin')
         label = self.get('UserLogin') or serial
-        self.token = Token(serial=serial,
-                           interval=interval,
-                           digits=digits,
-                           exp_date=exp_date,
-                           issuer=issuer,
-                           label=label)
+        self.token = Token(
+            serial=serial,
+            interval=interval,
+            digits=digits,
+            exp_date=exp_date,
+            issuer=issuer,
+            label=label,
+        )
 
     def get_token(self, password: Optional[str] = None) -> Token:
         """
-            Return the Token instance
+        Return the Token instance
 
-            :param password: optional password for decrypting the token
+        :param password: optional password for decrypting the token
         """
         if self.token.seed is None:
             self.token.seed = self.decrypt_seed(password)
@@ -87,14 +140,37 @@ class SdtidFile(AbstractTokenFile):
         name = self.get('Name')
         if password is None:
             password = self.get('Origin')
-        key = self.decrypt_secret(secret, name, self.hash_password(password, dest, name))
-        self.verify_mac('Header', 'BatchMAC', self.get('Name'), 'HeaderMAC', 'TKNHeader', key, BATCH_MAC_IV)
-        self.verify_mac('Token', 'TokenMAC', self.get('SN'), 'TokenMAC', 'TKN', key, TOKEN_MAC_IV)
+        key = self.decrypt_secret(
+            secret, name, self.hash_password(password, dest, name)
+        )
+        self.verify_mac(
+            'Header',
+            'BatchMAC',
+            self.get('Name'),
+            'HeaderMAC',
+            'TKNHeader',
+            key,
+            BATCH_MAC_IV,
+        )
+        self.verify_mac(
+            'Token', 'TokenMAC', self.get('SN'), 'TokenMAC', 'TKN', key, TOKEN_MAC_IV
+        )
         enc_seed = self.get('Seed', kind='base64')
-        token_enc_key = self.calc_key('TokenEncrypt', self.token.serial, key, TOKEN_ENC_IV)
+        token_enc_key = self.calc_key(
+            'TokenEncrypt', self.token.serial, key, TOKEN_ENC_IV
+        )
         return self.decrypt_enc_seed(enc_seed, self.token.serial, token_enc_key)
 
-    def verify_mac(self, kind: str, str0: str, str1: str, node: str, section: str, key1: bytes, iv: bytes) -> None:
+    def verify_mac(
+        self,
+        kind: str,
+        str0: str,
+        str1: str,
+        node: str,
+        section: str,
+        key1: bytes,
+        iv: bytes,
+    ) -> None:
         mac_key = self.calc_key(str0, str1, key1, iv)
         mac = self.get(node, kind='base64')
         hs = SessionHash()
@@ -115,8 +191,8 @@ class SdtidFile(AbstractTokenFile):
         result = bytes(AES_KEY_SIZE)
         iv = bytes(AES_BLOCK_SIZE)
         for i in range(0, 1000):
-            data[0x4f] = (i >> 0) % 256
-            data[0x4e] = (i >> 8) % 256
+            data[0x4F] = (i >> 0) % 256
+            data[0x4E] = (i >> 8) % 256
             result = xor_block(result, cbc_hash(key, iv, data))
         return bytes(result)
 
@@ -144,7 +220,7 @@ class SdtidFile(AbstractTokenFile):
     @classmethod
     def xml_to_dict(cls, xml: ET.Element) -> Dict[str, Any]:
         """
-            Convert XML to nested OrderDict
+        Convert XML to nested OrderDict
         """
         if xml:
             dd: Dict[str, Any] = OrderedDict()
@@ -208,19 +284,21 @@ class SessionHash(object):
                     self._append_data(data)
                     length = len(data) + self.padding
                     if length <= 16 and length < remain:
-                        self.pos = self.pos & ~0xf
+                        self.pos = self.pos & ~0xF
                         self._append_data(data, n=min(len(data), remain))
-                        self.data.arrayset(0, dest_offset=self.pos + len(data), n=self.padding)
+                        self.data.arrayset(
+                            0, dest_offset=self.pos + len(data), n=self.padding
+                        )
                 #  This doesn't really make sense but it's required for compatibility
                 self.pos = self.pos + len(data) + self.padding
-                self.padding = self.pos & 0xf or 0x10
+                self.padding = self.pos & 0xF or 0x10
 
     def _append_data(self, data: BytesStr, n: Optional[int] = None) -> None:
         if isinstance(data, str):
             data = bytes(data, 'ascii')
         if n is None:
             n = len(data)
-        self.data[self.pos:self.pos + n] = data[:n]
+        self.data[self.pos : self.pos + n] = data[:n]
 
     def compute_hash(self, key: bytes, iv: bytes) -> bytes:
-        return cbc_hash(key, iv, self.data[0:self.pos])
+        return cbc_hash(key, iv, self.data[0 : self.pos])

@@ -5,56 +5,48 @@ import os.path
 import math
 from datetime import date
 from typing import Union, Optional
-from .token import (
-    SERIAL_LENGTH,
-    Token,
-    AbstractTokenFile
-)
-from .utils import (
-    AES_KEY_SIZE,
-    Bytes,
-    aes_ecb_encrypt,
-    aes_ecb_decrypt,
-    Bytearray
-)
+from .token import SERIAL_LENGTH, Token, AbstractTokenFile
+from .utils import AES_KEY_SIZE, Bytes, aes_ecb_encrypt, aes_ecb_decrypt, Bytearray
 from .exceptions import (
     ParseException,
     InvalidToken,
     InvalidSignature,
     InvalidSeed,
-    InvalidSerial
+    InvalidSerial,
 )
 
-__all__ = [
-    'DEFAULT_STOKEN_FILENAME',
-    'StokenFile'
-]
+__all__ = ['DEFAULT_STOKEN_FILENAME', 'StokenFile']
 
 DEFAULT_STOKEN_FILENAME = '~/.stokenrc'
-FL_128BIT               = 1 << 14
-FL_PASSPROT             = 1 << 13
-FL_SNPROT               = 1 << 12
-FL_APPSEEDS             = 1 << 11
-FL_FEAT4                = 1 << 10
-FL_TIMESEEDS            = 1 << 9
-FLD_DIGIT_SHIFT         = 6
-FLD_DIGIT_MASK          = 0x07 << FLD_DIGIT_SHIFT
-FLD_PINMODE_SHIFT       = 3
-FLD_PINMODE_MASK        = 0x03 << FLD_PINMODE_SHIFT
-FLD_NUMSECONDS_SHIFT    = 0
-FLD_NUMSECONDS_MASK     = 0x03 << FLD_NUMSECONDS_SHIFT
-TOKEN_BITS_PER_CHAR     = 3
-STOKEN_MAGIC            = bytes([0xd8, 0xf5, 0x32, 0x53, 0x82, 0x89])
-VER_LENGTH              = 1
-CHECKSUM_BITS           = 15
-CHECKSUM_LENGTH         = int(CHECKSUM_BITS / TOKEN_BITS_PER_CHAR)
-BINENC_BITS             = 189
-BINENC_OFS              = (VER_LENGTH + SERIAL_LENGTH)
-MIN_TOKEN_BITS          = 189
-MAX_TOKEN_BITS          = 255
-MAX_TOKEN_LENGTH        = int(MAX_TOKEN_BITS / TOKEN_BITS_PER_CHAR)
-MIN_TOKEN_LENGTH        = int((MIN_TOKEN_BITS / TOKEN_BITS_PER_CHAR) + SERIAL_LENGTH + VER_LENGTH + CHECKSUM_LENGTH)
-SECURID_EPOCH           = 730120  # 2000/01/01 proleptic Gregorian ordinal
+FL_128BIT = 1 << 14
+FL_PASSPROT = 1 << 13
+FL_SNPROT = 1 << 12
+FL_APPSEEDS = 1 << 11
+FL_FEAT4 = 1 << 10
+FL_TIMESEEDS = 1 << 9
+FLD_DIGIT_SHIFT = 6
+FLD_DIGIT_MASK = 0x07 << FLD_DIGIT_SHIFT
+FLD_PINMODE_SHIFT = 3
+FLD_PINMODE_MASK = 0x03 << FLD_PINMODE_SHIFT
+FLD_NUMSECONDS_SHIFT = 0
+FLD_NUMSECONDS_MASK = 0x03 << FLD_NUMSECONDS_SHIFT
+TOKEN_BITS_PER_CHAR = 3
+STOKEN_MAGIC = bytes([0xD8, 0xF5, 0x32, 0x53, 0x82, 0x89])
+VER_LENGTH = 1
+CHECKSUM_BITS = 15
+CHECKSUM_LENGTH = int(CHECKSUM_BITS / TOKEN_BITS_PER_CHAR)
+BINENC_BITS = 189
+BINENC_OFS = VER_LENGTH + SERIAL_LENGTH
+MIN_TOKEN_BITS = 189
+MAX_TOKEN_BITS = 255
+MAX_TOKEN_LENGTH = int(MAX_TOKEN_BITS / TOKEN_BITS_PER_CHAR)
+MIN_TOKEN_LENGTH = int(
+    (MIN_TOKEN_BITS / TOKEN_BITS_PER_CHAR)
+    + SERIAL_LENGTH
+    + VER_LENGTH
+    + CHECKSUM_LENGTH
+)
+SECURID_EPOCH = 730120  # 2000/01/01 proleptic Gregorian ordinal
 
 
 class StokenFile(AbstractTokenFile):
@@ -66,14 +58,16 @@ class StokenFile(AbstractTokenFile):
     data: Optional[bytes]
     token: Token
 
-    def __init__(self,
-                 filename: Optional[str] = DEFAULT_STOKEN_FILENAME,
-                 data: Union[Optional[bytes], Optional[bytearray], Optional[str]] = None,
-                 token: Optional[Token] = None) -> None:
+    def __init__(
+        self,
+        filename: Optional[str] = DEFAULT_STOKEN_FILENAME,
+        data: Union[Optional[bytes], Optional[bytearray], Optional[str]] = None,
+        token: Optional[Token] = None,
+    ) -> None:
         """
-            :param filename: stokenrc file path
-            :param data: token as string in stokenrc format
-            :param token: Token instance
+        :param filename: stokenrc file path
+        :param data: token as string in stokenrc format
+        :param token: Token instance
         """
         if token is not None:
             self.filename = None
@@ -93,9 +87,9 @@ class StokenFile(AbstractTokenFile):
     @classmethod
     def parse_file(cls, filename: str) -> bytes:
         """
-            Parse stokenrc file, return token as string
+        Parse stokenrc file, return token as string
 
-            :param filename: stokenrc file path
+        :param filename: stokenrc file path
         """
         with open(filename, 'rb') as f:
             for line in f.readlines():
@@ -109,9 +103,9 @@ class StokenFile(AbstractTokenFile):
     @classmethod
     def parse_file_pin(cls, filename: str) -> int:
         """
-            Parse stokenrc file, return pin as int or 0 if not found
+        Parse stokenrc file, return pin as int or 0 if not found
 
-            :param filename: stokenrc file path
+        :param filename: stokenrc file path
         """
         with open(filename, 'rb') as f:
             for line in f.readlines():
@@ -133,11 +127,17 @@ class StokenFile(AbstractTokenFile):
         flags = cls._get_bits(d, 128, 16)
         seed_hash = cls._get_bits(d, 159, 15)
         exp_date = date.fromordinal(cls._get_bits(d, 144, 14) + SECURID_EPOCH)
-        serial = str(data[VER_LENGTH: VER_LENGTH + SERIAL_LENGTH], 'ascii')
+        serial = str(data[VER_LENGTH : VER_LENGTH + SERIAL_LENGTH], 'ascii')
         interval = 60 if ((flags & FLD_NUMSECONDS_MASK) >> FLD_NUMSECONDS_SHIFT) else 30
         digits = ((flags & FLD_DIGIT_MASK) >> FLD_DIGIT_SHIFT) + 1
         seed = cls.v2_decrypt_seed(enc_seed, seed_hash)
-        return Token(serial=serial, seed=seed, interval=interval, digits=digits, exp_date=exp_date)
+        return Token(
+            serial=serial,
+            seed=seed,
+            interval=interval,
+            digits=digits,
+            exp_date=exp_date,
+        )
 
     def v2_encode_token(self) -> None:
         if not self.token.seed:
@@ -158,7 +158,14 @@ class StokenFile(AbstractTokenFile):
         d.arraycpy(enc_seed, n=AES_KEY_SIZE, dest_offset=0)
         self._set_bits(d, 128, 16, flags)
         self._set_bits(d, 159, 15, seed_hash)
-        self._set_bits(d, 144, 14, (self.token.exp_date.toordinal() - SECURID_EPOCH) if self.token.exp_date else 0)
+        self._set_bits(
+            d,
+            144,
+            14,
+            (self.token.exp_date.toordinal() - SECURID_EPOCH)
+            if self.token.exp_date
+            else 0,
+        )
 
         data = Bytearray(81)
         data.arraycpy(b'2', dest_offset=0)  # version
@@ -166,7 +173,7 @@ class StokenFile(AbstractTokenFile):
         data.arraycpy(self.token.serial, n=SERIAL_LENGTH, dest_offset=VER_LENGTH)
 
         d = Bytearray(int(MAX_TOKEN_BITS / 8 + 2))
-        computed_mac = self._securid_shortmac(data[:len(data) - CHECKSUM_LENGTH])
+        computed_mac = self._securid_shortmac(data[: len(data) - CHECKSUM_LENGTH])
         self._set_bits(d, 0, 15, computed_mac)
         t = self._bits_to_numoutput(d, 15)
         data.arraycpy(t, dest_offset=len(data) - CHECKSUM_LENGTH)
@@ -178,7 +185,7 @@ class StokenFile(AbstractTokenFile):
     def _verify_checksum(cls, data: Bytes) -> None:
         d = cls._numinput_to_bits(data, 15, offset=len(data) - CHECKSUM_LENGTH)
         token_mac = cls._get_bits(d, 0, 15)
-        computed_mac = cls._securid_shortmac(data[:len(data) - CHECKSUM_LENGTH])
+        computed_mac = cls._securid_shortmac(data[: len(data) - CHECKSUM_LENGTH])
         if token_mac != computed_mac:
             raise InvalidSignature('Invalid checksum')
 
@@ -191,7 +198,7 @@ class StokenFile(AbstractTokenFile):
             decoded = (t - ord('0')) & 0x07
             decoded = decoded << bitpos
             out[0 + pos] = out[0 + pos] | decoded >> 8
-            out[1 + pos] = out[1 + pos] | decoded & 0xff
+            out[1 + pos] = out[1 + pos] | decoded & 0xFF
             bitpos = bitpos - TOKEN_BITS_PER_CHAR
             if bitpos < 0:
                 bitpos = bitpos + 8
@@ -264,7 +271,7 @@ class StokenFile(AbstractTokenFile):
         # handle the bulk of the input data here
         odd = False
         t = data
-        work = bytes([0xff] * AES_KEY_SIZE)
+        work = bytes([0xFF] * AES_KEY_SIZE)
         while len(t) > AES_KEY_SIZE:
             work = cls._encrypt_then_xor(t[:AES_KEY_SIZE], work)
             t = t[AES_KEY_SIZE:]
@@ -299,6 +306,6 @@ class StokenFile(AbstractTokenFile):
 
     def get_token(self, password: Optional[str] = None) -> Token:
         """
-            Return the Token instance
+        Return the Token instance
         """
         return self.token

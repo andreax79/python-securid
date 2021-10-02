@@ -6,16 +6,8 @@ import json
 from datetime import date
 from typing import Any, Dict, Optional, Union
 from .utils import Bytes
-from .token import (
-    SERIAL_LENGTH,
-    Token,
-    AbstractTokenFile
-)
-from .exceptions import (
-    ParseException,
-    InvalidSeed,
-    InvalidSerial
-)
+from .token import SERIAL_LENGTH, Token, AbstractTokenFile
+from .exceptions import ParseException, InvalidSeed, InvalidSerial
 
 __all__ = [
     'JSONTokenFile',
@@ -45,14 +37,16 @@ class JSONTokenFile(AbstractTokenFile):
     filename: Optional[str]
     token: Token
 
-    def __init__(self,
-                 filename: Optional[str] = None,
-                 data: Union[bytes, bytearray, str, Dict[str, Any], None] = None,
-                 token: Optional[Token] = None) -> None:
+    def __init__(
+        self,
+        filename: Optional[str] = None,
+        data: Union[bytes, bytearray, str, Dict[str, Any], None] = None,
+        token: Optional[Token] = None,
+    ) -> None:
         """
-            :param filename: JSON file path
-            :param data: token as string in JSON format or as a dictionary
-            :param token: Token instance
+        :param filename: JSON file path
+        :param data: token as string in JSON format or as a dictionary
+        :param token: Token instance
         """
         if token is not None:
             self.filename = None
@@ -70,9 +64,9 @@ class JSONTokenFile(AbstractTokenFile):
     @classmethod
     def parse_file(cls, filename: str) -> bytes:
         """
-            Parse JSON file, return content as string
+        Parse JSON file, return content as string
 
-            :param filename: JSON file path
+        :param filename: JSON file path
         """
         with open(filename, 'rb') as f:
             return f.read()
@@ -87,7 +81,9 @@ class JSONTokenFile(AbstractTokenFile):
             token = Token(
                 digits=dct['digits'],
                 interval=dct['period'],
-                exp_date=date.fromisoformat(dct['exp_date']) if dct.get('exp_date') else None,
+                exp_date=date.fromisoformat(dct['exp_date'])
+                if dct.get('exp_date')
+                else None,
                 seed=bytes(dct['secret']),
                 serial=dct['serial'],
                 issuer=dct.get('issuerInt'),
@@ -100,15 +96,15 @@ class JSONTokenFile(AbstractTokenFile):
 
     def get_token(self, password: Optional[str] = None) -> Token:
         """
-            Return the Token instance
+        Return the Token instance
 
-            :param password: optional password for decrypting the token
+        :param password: optional password for decrypting the token
         """
         return self.token
 
     def export_token(self) -> bytes:
         """
-            Export token as JSON
+        Export token as JSON
         """
         if not self.token.seed:
             raise InvalidSeed('Missing seed')
@@ -122,7 +118,7 @@ class JSONTokenFile(AbstractTokenFile):
             'exp_date': self.token.exp_date.isoformat() if self.token.exp_date else '',
             'secret': [x for x in self.token.seed],
             'serial': self.token.serial,
-            'type': 'SecurID'
+            'type': 'SecurID',
         }
         if self.token.issuer is not None:
             data['issuerInt'] = self.token.issuer

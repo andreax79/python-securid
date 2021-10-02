@@ -2,6 +2,7 @@
 
 from typing import Union, Optional
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
 try:  # pragma: no cover
     from secrets import SystemRandom  # (Python >= 3.6) type: ignore
 except ImportError:  # pragma: no cover
@@ -32,22 +33,23 @@ random = SystemRandom()
 
 
 class Bytearray(bytearray):
-
     def arrayset(self, c: int, n: int, dest_offset: int = 0) -> None:
-        self[dest_offset:dest_offset + n] = [c] * n
+        self[dest_offset : dest_offset + n] = [c] * n
 
-    def arraycpy(self, src: BytesStr, n: Optional[int] = None, dest_offset: int = 0) -> None:
+    def arraycpy(
+        self, src: BytesStr, n: Optional[int] = None, dest_offset: int = 0
+    ) -> None:
         if isinstance(src, str):
             src = bytes(src, 'ascii')
         if n is None:
             n = len(src)
         n = min(n, len(self) - dest_offset, len(src))
-        self[dest_offset:dest_offset + n] = src[0:n]
+        self[dest_offset : dest_offset + n] = src[0:n]
 
 
 def aes_ecb_encrypt(key: Bytes, data: Bytes) -> bytes:
     """
-        Encrypt data with the key using AES-128 ECB
+    Encrypt data with the key using AES-128 ECB
     """
     cipher = Cipher(algorithms.AES(bytes(key)), modes.ECB())
     encryptor = cipher.encryptor()  # type: ignore
@@ -56,7 +58,7 @@ def aes_ecb_encrypt(key: Bytes, data: Bytes) -> bytes:
 
 def aes_ecb_decrypt(key: Bytes, data: Bytes) -> bytes:
     """
-        Decrypt data with the key using AES-128 ECB
+    Decrypt data with the key using AES-128 ECB
     """
     cipher = Cipher(algorithms.AES(bytes(key)), modes.ECB())
     decryptor = cipher.decryptor()  # type: ignore
@@ -69,7 +71,7 @@ def xor_block(a: Bytes, b: Bytes) -> bytes:
 
 def cbc_hash(key: Bytes, iv: Bytes, data: Bytes) -> bytes:
     """
-        Calculate cipher block chaining message authentication code
+    Calculate cipher block chaining message authentication code
     """
     result = bytes(iv)
     while len(data) > 0:

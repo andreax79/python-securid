@@ -4,6 +4,4 @@ from .token import Token
 
 __version__ = '0.9.4'
 
-__all__ = [
-    'Token'
-]
+__all__ = ['Token']
