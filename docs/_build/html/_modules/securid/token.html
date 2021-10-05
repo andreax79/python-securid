@@ -6,10 +6,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>securid.token &#8212; securid 0.9.4 documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
@@ -46,22 +46,17 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">InvalidSeed</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InvalidSeed</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AES_KEY_SIZE</span><span class="p">,</span>
     <span class="n">BytesStr</span><span class="p">,</span>
     <span class="n">random</span><span class="p">,</span>
     <span class="n">Bytearray</span><span class="p">,</span>
     <span class="n">aes_ecb_encrypt</span><span class="p">,</span>
+    <span class="n">fromisoformat</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;Token&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;AbstractTokenFile&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;SERIAL_LENGTH&#39;</span>
-<span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Token&#39;</span><span class="p">,</span> <span class="s1">&#39;AbstractTokenFile&#39;</span><span class="p">,</span> <span class="s1">&#39;SERIAL_LENGTH&#39;</span><span class="p">]</span>
 
 <span class="n">DEFAULT_DIGITS</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="n">DEFAULT_INTERVAL</span> <span class="o">=</span> <span class="mi">60</span>
@@ -83,24 +78,26 @@
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># label (userlogin, serial)</span>
     <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>  <span class="c1"># PIN</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">serial</span><span class="p">:</span> <span class="n">BytesStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-                 <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_INTERVAL</span><span class="p">,</span>
-                 <span class="n">digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_DIGITS</span><span class="p">,</span>
-                 <span class="n">exp_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">issuer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">serial</span><span class="p">:</span> <span class="n">BytesStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_INTERVAL</span><span class="p">,</span>
+        <span class="n">digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_DIGITS</span><span class="p">,</span>
+        <span class="n">exp_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">issuer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            :param serial: token serial number</span>
-<span class="sd">            :param seed: token seed</span>
-<span class="sd">            :param interval: time interval in seconds for OTP (default: 60)</span>
-<span class="sd">            :param digits: number of digits (default: 6)</span>
-<span class="sd">            :param exp_date: expiration date</span>
-<span class="sd">            :param issuer: issuer</span>
-<span class="sd">            :param label: label</span>
-<span class="sd">            :param pin: PIN (default: 0)</span>
+<span class="sd">        :param serial: token serial number</span>
+<span class="sd">        :param seed: token seed</span>
+<span class="sd">        :param interval: time interval in seconds for OTP (default: 60)</span>
+<span class="sd">        :param digits: number of digits (default: 6)</span>
+<span class="sd">        :param exp_date: expiration date</span>
+<span class="sd">        :param issuer: issuer</span>
+<span class="sd">        :param label: label</span>
+<span class="sd">        :param pin: PIN (default: 0)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">serial</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">serial</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">serial</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
@@ -108,7 +105,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">seed</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exp_date</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">exp_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">exp_date</span><span class="p">)</span>
+            <span class="n">exp_date</span> <span class="o">=</span> <span class="n">fromisoformat</span><span class="p">(</span><span class="n">exp_date</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">digits</span> <span class="o">=</span> <span class="n">digits</span>
@@ -119,84 +116,88 @@
 
 <div class="viewcode-block" id="Token.generate_otp"><a class="viewcode-back" href="../../index.html#securid.Token.generate_otp">[docs]</a>    <span class="k">def</span> <span class="nf">generate_otp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Generate OTP</span>
+<span class="sd">        Generate OTP</span>
 
-<span class="sd">            :param input: the time to generate an OTP for</span>
-<span class="sd">            :returns: OTP code</span>
+<span class="sd">        :param input: the time to generate an OTP for</span>
+<span class="sd">        :returns: OTP code</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidSeed</span><span class="p">(</span><span class="s1">&#39;Missing seed&#39;</span><span class="p">)</span>
         <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
         <span class="n">bcd_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_bcd_time</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">bcd_time_bytes</span> <span class="ow">in</span> <span class="n">BCD_TIME_BYTES</span><span class="p">:</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">aes_ecb_encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_from_time</span><span class="p">(</span><span class="n">bcd_time</span><span class="p">,</span> <span class="n">bcd_time_bytes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="p">))</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">aes_ecb_encrypt</span><span class="p">(</span>
+                <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_from_time</span><span class="p">(</span><span class="n">bcd_time</span><span class="p">,</span> <span class="n">bcd_time_bytes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serial</span><span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_token_pin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_code</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="n">pin</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Token.at"><a class="viewcode-back" href="../../index.html#securid.Token.at">[docs]</a>    <span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">for_time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="p">],</span> <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Generate OTP for the given time</span>
-<span class="sd">            (accepts either a Unix timestamp integer or a datetime object)</span>
+<span class="sd">        Generate OTP for the given time</span>
+<span class="sd">        (accepts either a Unix timestamp integer or a datetime object)</span>
 
-<span class="sd">            :param for_time: the time to generate an OTP for</span>
-<span class="sd">            :returns: OTP code</span>
+<span class="sd">        :param for_time: the time to generate an OTP for</span>
+<span class="sd">        :returns: OTP code</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">for_time</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
-            <span class="n">for_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">for_time</span><span class="p">))</span>
+            <span class="n">for_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">for_time</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_otp</span><span class="p">(</span><span class="n">for_time</span><span class="p">,</span> <span class="n">pin</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Token.now"><a class="viewcode-back" href="../../index.html#securid.Token.now">[docs]</a>    <span class="k">def</span> <span class="nf">now</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Generate the current time OTP</span>
+<span class="sd">        Generate the current time OTP</span>
 
-<span class="sd">            :returns: OTP value</span>
+<span class="sd">        :returns: OTP value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_otp</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span> <span class="n">pin</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Token.time_left"><a class="viewcode-back" href="../../index.html#securid.Token.time_left">[docs]</a>    <span class="k">def</span> <span class="nf">time_left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">for_time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Time until next token</span>
+<span class="sd">        Time until next token</span>
 
-<span class="sd">            :returns: seconds</span>
+<span class="sd">        :returns: seconds</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">for_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">for_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">for_time</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
-            <span class="n">for_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">for_time</span><span class="p">))</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">-</span> <span class="n">for_time</span><span class="o">.</span><span class="n">second</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+            <span class="n">for_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">for_time</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">-</span> <span class="n">for_time</span><span class="o">.</span><span class="n">second</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span>
         <span class="k">if</span> <span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
     <span class="k">def</span> <span class="nf">_compute_bcd_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Compute BCD time for the given time</span>
+<span class="sd">        Compute BCD time for the given time</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">minute</span><span class="o">=</span><span class="nb">input</span><span class="o">.</span><span class="n">minute</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">==</span> <span class="mi">30</span> <span class="k">else</span> <span class="o">-</span><span class="mi">4</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">binascii</span><span class="o">.</span><span class="n">unhexlify</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">%H%M0000&#39;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_output_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            OTP code output</span>
+<span class="sd">        OTP code output</span>
 
-<span class="sd">            :param input: the time to generate an OTP for</span>
-<span class="sd">            :returns: OTP code</span>
+<span class="sd">        :param input: the time to generate an OTP for</span>
+<span class="sd">        :returns: OTP code</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># key contains 4 consecutive codes</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">==</span> <span class="mi">30</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="p">((</span><span class="nb">input</span><span class="o">.</span><span class="n">minute</span> <span class="o">&amp;</span> <span class="mh">0x01</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="nb">input</span><span class="o">.</span><span class="n">second</span> <span class="o">&gt;=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">minute</span> <span class="o">&amp;</span> <span class="mh">0x03</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span>
-        <span class="n">tokencode</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;0&#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tokencode</span><span class="p">))[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span><span class="p">:]</span>
+        <span class="n">tokencode</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;0&#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tokencode</span><span class="p">))[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">digits</span> <span class="p">:]</span>
 
     <span class="k">def</span> <span class="nf">_token_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Support for RSA PIN</span>
+<span class="sd">        Support for RSA PIN</span>
 
-<span class="sd">            :param token: the generated OTP token</span>
-<span class="sd">            :param pin: the RSA PIN to integrate</span>
-<span class="sd">            :returns: OTP code</span>
+<span class="sd">        :param token: the generated OTP token</span>
+<span class="sd">        :param pin: the RSA PIN to integrate</span>
+<span class="sd">        :returns: OTP code</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pin</span> <span class="o">=</span> <span class="n">pin</span> <span class="k">if</span> <span class="n">pin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">pin</span>
         <span class="k">if</span> <span class="n">pin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -214,23 +215,27 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_key_from_time</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bcd_time</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">bcd_time_bytes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">serial</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="n">AES_KEY_SIZE</span><span class="p">)</span>
-        <span class="n">key</span><span class="o">.</span><span class="n">arrayset</span><span class="p">(</span><span class="mh">0xaa</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">key</span><span class="o">.</span><span class="n">arrayset</span><span class="p">(</span><span class="mh">0xAA</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
         <span class="n">key</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="n">bcd_time</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">bcd_time_bytes</span><span class="p">)</span>
-        <span class="n">key</span><span class="o">.</span><span class="n">arrayset</span><span class="p">(</span><span class="mh">0xbb</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">key</span><span class="o">.</span><span class="n">arrayset</span><span class="p">(</span><span class="mh">0xBB</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
         <span class="c1"># write BCD-encoded partial serial number</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
-            <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="nb">ord</span><span class="p">(</span><span class="n">serial</span><span class="p">[</span><span class="n">p</span><span class="p">])</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">serial</span><span class="p">[</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+            <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="nb">ord</span><span class="p">(</span><span class="n">serial</span><span class="p">[</span><span class="n">p</span><span class="p">])</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+                <span class="nb">ord</span><span class="p">(</span><span class="n">serial</span><span class="p">[</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
-               <span class="n">serial</span><span class="p">:</span> <span class="n">BytesStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-               <span class="n">interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_INTERVAL</span><span class="p">,</span>
-               <span class="n">digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_DIGITS</span><span class="p">,</span>
-               <span class="n">exp_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-               <span class="n">issuer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-               <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-               <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Token&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">random</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">serial</span><span class="p">:</span> <span class="n">BytesStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_INTERVAL</span><span class="p">,</span>
+        <span class="n">digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_DIGITS</span><span class="p">,</span>
+        <span class="n">exp_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">issuer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Token&#39;</span><span class="p">:</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">AES_KEY_SIZE</span><span class="p">)])</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Generate a new random token</span>
@@ -245,15 +250,19 @@
 <span class="sd">            :returns: the generated Token instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">serial</span><span class="p">:</span>
-            <span class="n">serial</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SERIAL_LENGTH</span><span class="p">)])</span>
-        <span class="k">return</span> <span class="n">Token</span><span class="p">(</span><span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span>
-                     <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
-                     <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
-                     <span class="n">digits</span><span class="o">=</span><span class="n">digits</span><span class="p">,</span>
-                     <span class="n">exp_date</span><span class="o">=</span><span class="n">exp_date</span><span class="p">,</span>
-                     <span class="n">issuer</span><span class="o">=</span><span class="n">issuer</span><span class="p">,</span>
-                     <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
-                     <span class="n">pin</span><span class="o">=</span><span class="n">pin</span><span class="p">)</span>
+            <span class="n">serial</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SERIAL_LENGTH</span><span class="p">)]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Token</span><span class="p">(</span>
+            <span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">digits</span><span class="o">=</span><span class="n">digits</span><span class="p">,</span>
+            <span class="n">exp_date</span><span class="o">=</span><span class="n">exp_date</span><span class="p">,</span>
+            <span class="n">issuer</span><span class="o">=</span><span class="n">issuer</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">pin</span><span class="o">=</span><span class="n">pin</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_fmt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -265,10 +274,14 @@
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())]))</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())])</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmt</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Token</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span>
@@ -285,9 +298,9 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Return the Token instance</span>
+<span class="sd">        Return the Token instance</span>
 
-<span class="sd">            :param password: optional password for decrypting the token</span>
+<span class="sd">        :param password: optional password for decrypting the token</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </pre></div>
@@ -302,7 +315,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -327,7 +340,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>
