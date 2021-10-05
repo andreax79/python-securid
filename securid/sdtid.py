@@ -14,6 +14,7 @@ from .utils import (
     aes_ecb_encrypt,
     xor_block,
     cbc_hash,
+    fromisoformat,
 )
 from .exceptions import ParseException, InvalidSignature
 
@@ -251,7 +252,7 @@ class SdtidFile(AbstractTokenFile):
         elif kind == 'int':
             value = int(value)
         elif kind == 'date':
-            value = date.fromisoformat(value.replace('/', '-'))
+            value = fromisoformat(value.replace('/', '-'))
         return value
 
 

@@ -13,6 +13,7 @@ from .utils import (
     random,
     Bytearray,
     aes_ecb_encrypt,
+    fromisoformat,
 )
 
 __all__ = ['Token', 'AbstractTokenFile', 'SERIAL_LENGTH']
@@ -64,7 +65,7 @@ class Token(object):
         if isinstance(seed, str):
             seed = bytes(seed, 'ascii')
         if isinstance(exp_date, str):
-            exp_date = date.fromisoformat(exp_date)
+            exp_date = fromisoformat(exp_date)
         self.seed = seed
         self.interval = interval
         self.digits = digits

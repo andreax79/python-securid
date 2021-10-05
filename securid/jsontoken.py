@@ -3,9 +3,8 @@
 import os
 import os.path
 import json
-from datetime import date
 from typing import Any, Dict, Optional, Union
-from .utils import Bytes
+from .utils import Bytes, fromisoformat
 from .token import SERIAL_LENGTH, Token, AbstractTokenFile
 from .exceptions import ParseException, InvalidSeed, InvalidSerial
 
@@ -81,7 +80,7 @@ class JSONTokenFile(AbstractTokenFile):
             token = Token(
                 digits=dct['digits'],
                 interval=dct['period'],
-                exp_date=date.fromisoformat(dct['exp_date'])
+                exp_date=fromisoformat(dct['exp_date'])
                 if dct.get('exp_date')
                 else None,
                 seed=bytes(dct['secret']),

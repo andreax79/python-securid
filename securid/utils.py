@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from datetime import datetime, date
 from typing import Union, Optional
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -20,6 +21,7 @@ __all__ = [
     'aes_ecb_decrypt',
     'xor_block',
     'cbc_hash',
+    'fromisoformat',
 ]
 
 AES_BLOCK_SIZE = 16
@@ -78,3 +80,10 @@ def cbc_hash(key: Bytes, iv: Bytes, data: Bytes) -> bytes:
         result = aes_ecb_encrypt(key, xor_block(result, data))
         data = data[AES_BLOCK_SIZE:]
     return bytes(result)
+
+
+def fromisoformat(dt: str) -> date:
+    """
+    Convert a YYYY-MM-DD string into a date object
+    """
+    return datetime.strptime(dt, '%Y-%m-%d').date()
