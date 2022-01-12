@@ -7,6 +7,7 @@ help:
 	@echo - make lint
 	@echo - make release
 	@echo - make clean
+	@echo - make doc
 
 coverage:
 	python3 -m coverage run --source=securid test.py && python3 -m coverage report -m
@@ -28,3 +29,5 @@ clean:
 	-rm -rf build dist
 	-rm -rf *.egg-info
 
+doc:
+	cd docs; $(MAKE) html
