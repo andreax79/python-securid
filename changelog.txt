@@ -48,3 +48,11 @@
 ### Added
 
 - pin support
+
+## 0.9.5
+
+2022-01-12
+
+### Changed
+
+- Cryptography version >= 36

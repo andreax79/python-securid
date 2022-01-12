@@ -4,3 +4,5 @@ mypy
 sphinx
 tox
 black
+twine<3.4
+black
