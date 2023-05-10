@@ -1,19 +1,17 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>python-securid - RSA SecurID 128-bit Token Library &#8212; securid 0.9.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -38,36 +36,37 @@
           <div class="body" role="main">
             
   <section id="python-securid-rsa-securid-128-bit-token-library">
-<h1>python-securid - RSA SecurID 128-bit Token Library<a class="headerlink" href="#python-securid-rsa-securid-128-bit-token-library" title="Permalink to this headline">¶</a></h1>
+<h1>python-securid - RSA SecurID 128-bit Token Library<a class="headerlink" href="#python-securid-rsa-securid-128-bit-token-library" title="Permalink to this heading">¶</a></h1>
 <p>python-securid is a Python library for generating RSA SecurID 128-bit compatible token codes.
 (Python port of <a class="reference external" href="https://github.com/cernekee/stoken">stoken</a>).
 This project is not affiliated with or endorsed by RSA Security.</p>
+<p><a class="reference external" href="https://www.python.org/"><img alt="made-with-python" src="https://img.shields.io/badge/Made%20with-Python-1f425f.svg" /></a> <a class="reference external" href="https://github.com/andreax79/python-securid/actions"><img alt="Build Status" src="https://github.com/andreax79/python-securid/workflows/Tests/badge.svg" /></a> <a class="reference external" href="https://badge.fury.io/py/securid"><img alt="PyPI version" src="https://badge.fury.io/py/securid.svg" /></a> <a class="reference external" href="https://pypi.org/project/securid"><img alt="PyPI" src="https://img.shields.io/pypi/pyversions/securid.svg" /></a> <a class="reference external" href="https://pepy.tech/project/securid"><img alt="Downloads" src="https://pepy.tech/badge/securid/month" /></a> <a class="reference external" href="https://pypi.python.org/pypi/asecurid/"><img alt="PyPI license" src="https://img.shields.io/pypi/l/securid.svg" /></a> <a class="reference external" href="https://github.com/psf/black"><img alt="Code style" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a></p>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">securid</span>
 </pre></div>
 </div>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <section id="shell">
-<h3>Shell<a class="headerlink" href="#shell" title="Permalink to this headline">¶</a></h3>
+<h3>Shell<a class="headerlink" href="#shell" title="Permalink to this heading">¶</a></h3>
 <p>Generate token from a password protected sdtid file.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ securid --filename my.sdtid --password very_secret
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>securid<span class="w"> </span>--filename<span class="w"> </span>my.sdtid<span class="w"> </span>--password<span class="w"> </span>very_secret
 <span class="m">24848935</span>
 </pre></div>
 </div>
 <p>Convert a sdtid file into an unprotected JSON file and generate token from the JSON file.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ securid --filename my.sdtid --password very_secret --export &gt; my.json
-$ securid --filename my.json
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>securid<span class="w"> </span>--filename<span class="w"> </span>my.sdtid<span class="w"> </span>--password<span class="w"> </span>very_secret<span class="w"> </span>--export<span class="w"> </span>&gt;<span class="w"> </span>my.json
+$<span class="w"> </span>securid<span class="w"> </span>--filename<span class="w"> </span>my.json
 <span class="m">24848935</span>
-$ cat my.json
-<span class="o">{</span><span class="s2">&quot;digits&quot;</span>: <span class="m">8</span>, <span class="s2">&quot;exp_date&quot;</span>: <span class="s2">&quot;2025-04-13&quot;</span>, <span class="s2">&quot;period&quot;</span>: <span class="m">60</span>, <span class="s2">&quot;secret&quot;</span>: <span class="o">[</span><span class="m">15</span>, <span class="m">63</span>, <span class="m">116</span>, <span class="m">57</span>, <span class="m">194</span>, <span class="m">241</span>, <span class="m">34</span>, <span class="m">224</span>, <span class="m">68</span>, <span class="m">60</span>, <span class="m">168</span>, <span class="m">234</span>, <span class="m">155</span>, <span class="m">194</span>, <span class="m">99</span>, <span class="m">167</span><span class="o">]</span>, <span class="s2">&quot;serial&quot;</span>: <span class="s2">&quot;530965299048&quot;</span>, <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;SecurID&quot;</span><span class="o">}</span>
+$<span class="w"> </span>cat<span class="w"> </span>my.json
+<span class="o">{</span><span class="s2">&quot;digits&quot;</span>:<span class="w"> </span><span class="m">8</span>,<span class="w"> </span><span class="s2">&quot;exp_date&quot;</span>:<span class="w"> </span><span class="s2">&quot;2025-04-13&quot;</span>,<span class="w"> </span><span class="s2">&quot;period&quot;</span>:<span class="w"> </span><span class="m">60</span>,<span class="w"> </span><span class="s2">&quot;secret&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="m">15</span>,<span class="w"> </span><span class="m">63</span>,<span class="w"> </span><span class="m">116</span>,<span class="w"> </span><span class="m">57</span>,<span class="w"> </span><span class="m">194</span>,<span class="w"> </span><span class="m">241</span>,<span class="w"> </span><span class="m">34</span>,<span class="w"> </span><span class="m">224</span>,<span class="w"> </span><span class="m">68</span>,<span class="w"> </span><span class="m">60</span>,<span class="w"> </span><span class="m">168</span>,<span class="w"> </span><span class="m">234</span>,<span class="w"> </span><span class="m">155</span>,<span class="w"> </span><span class="m">194</span>,<span class="w"> </span><span class="m">99</span>,<span class="w"> </span><span class="m">167</span><span class="o">]</span>,<span class="w"> </span><span class="s2">&quot;serial&quot;</span>:<span class="w"> </span><span class="s2">&quot;530965299048&quot;</span>,<span class="w"> </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;SecurID&quot;</span><span class="o">}</span>
 </pre></div>
 </div>
 </section>
 <section id="sdtid-file">
-<h3>Sdtid File<a class="headerlink" href="#sdtid-file" title="Permalink to this headline">¶</a></h3>
+<h3>Sdtid File<a class="headerlink" href="#sdtid-file" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
 <span class="kn">from</span> <span class="nn">securid.sdtid</span> <span class="kn">import</span> <span class="n">SdtidFile</span>
 
@@ -81,7 +80,7 @@ $ cat my.json
 </div>
 </section>
 <section id="stoken-file">
-<h3>Stoken File<a class="headerlink" href="#stoken-file" title="Permalink to this headline">¶</a></h3>
+<h3>Stoken File<a class="headerlink" href="#stoken-file" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
 <span class="kn">from</span> <span class="nn">securid.stoken</span> <span class="kn">import</span> <span class="n">StokenFile</span>
 
@@ -95,7 +94,7 @@ $ cat my.json
 </div>
 </section>
 <section id="generating-a-new-token">
-<h3>Generating a new Token<a class="headerlink" href="#generating-a-new-token" title="Permalink to this headline">¶</a></h3>
+<h3>Generating a new Token<a class="headerlink" href="#generating-a-new-token" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">securid</span>
 
 <span class="n">token</span> <span class="o">=</span> <span class="n">securid</span><span class="o">.</span><span class="n">Token</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">exp_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2030</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
@@ -106,7 +105,7 @@ $ cat my.json
 </div>
 </section>
 <section id="links">
-<h3>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h3>
+<h3>Links<a class="headerlink" href="#links" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/andreax79/python-securid">Project home page (GitHub)</a></p></li>
 <li><p><a class="reference external" href="https://python-securid.readthedocs.io/en/latest/">Documentation (Read the Docs)</a></p></li>
@@ -117,13 +116,13 @@ $ cat my.json
 </section>
 </section>
 <section id="module-securid">
-<span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-securid" title="Permalink to this headline">¶</a></h1>
+<span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-securid" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="securid.Token">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.</span></span><span class="sig-name descname"><span class="pre">Token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">datetime.date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issuer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/token.html#Token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.</span></span><span class="sig-name descname"><span class="pre">Token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">date</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issuer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/token.html#Token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handler for RSA SecurID 128-bit compatible token codes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>serial</strong> – token serial number</p></li>
 <li><p><strong>seed</strong> – token seed</p></li>
@@ -138,14 +137,14 @@ $ cat my.json
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.Token.at">
-<span class="sig-name descname"><span class="pre">at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">for_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.at" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">for_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate OTP for the given time
 (accepts either a Unix timestamp integer or a datetime object)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>for_time</strong> – the time to generate an OTP for</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>OTP code</p>
 </dd>
 </dl>
@@ -153,13 +152,13 @@ $ cat my.json
 
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.Token.generate_otp">
-<span class="sig-name descname"><span class="pre">generate_otp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.generate_otp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.generate_otp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">generate_otp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.generate_otp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.generate_otp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate OTP</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input</strong> – the time to generate an OTP for</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>OTP code</p>
 </dd>
 </dl>
@@ -167,10 +166,10 @@ $ cat my.json
 
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.Token.now">
-<span class="sig-name descname"><span class="pre">now</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.now"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.now" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">now</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.now"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.now" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the current time OTP</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>OTP value</p>
 </dd>
 </dl>
@@ -178,10 +177,10 @@ $ cat my.json
 
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.Token.time_left">
-<span class="sig-name descname"><span class="pre">time_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">for_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.time_left"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.time_left" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">time_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">for_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/securid/token.html#Token.time_left"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.Token.time_left" title="Permalink to this definition">¶</a></dt>
 <dd><p>Time until next token</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>seconds</p>
 </dd>
 </dl>
@@ -190,17 +189,17 @@ $ cat my.json
 </dd></dl>
 
 <section id="module-securid.sdtid">
-<span id="securid-sdtid"></span><h2>securid.sdtid<a class="headerlink" href="#module-securid.sdtid" title="Permalink to this headline">¶</a></h2>
+<span id="securid-sdtid"></span><h2>securid.sdtid<a class="headerlink" href="#module-securid.sdtid" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="securid.sdtid.SdtidFile">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.sdtid.</span></span><span class="sig-name descname"><span class="pre">SdtidFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.sdtid.SdtidFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handler for RSA SecurID sdtid XML file format.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.sdtid.SdtidFile.get_token">
-<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">securid.token.Token</span></a></span></span><a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile.get_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.sdtid.SdtidFile.get_token" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">Token</span></a></span></span><a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile.get_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.sdtid.SdtidFile.get_token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Token instance</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>password</strong> – optional password for decrypting the token</p>
 </dd>
 </dl>
@@ -211,7 +210,7 @@ $ cat my.json
 <span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile.parse_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.sdtid.SdtidFile.parse_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse sdtid file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – sdtid file path</p>
 </dd>
 </dl>
@@ -219,7 +218,7 @@ $ cat my.json
 
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.sdtid.SdtidFile.xml_to_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xml_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">xml.etree.ElementTree.Element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile.xml_to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.sdtid.SdtidFile.xml_to_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xml_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/securid/sdtid.html#SdtidFile.xml_to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.sdtid.SdtidFile.xml_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert XML to nested OrderDict</p>
 </dd></dl>
 
@@ -227,13 +226,13 @@ $ cat my.json
 
 </section>
 <section id="module-securid.stoken">
-<span id="securid-stoken"></span><h2>securid.stoken<a class="headerlink" href="#module-securid.stoken" title="Permalink to this headline">¶</a></h2>
+<span id="securid-stoken"></span><h2>securid.stoken<a class="headerlink" href="#module-securid.stoken" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="securid.stoken.StokenFile">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.stoken.</span></span><span class="sig-name descname"><span class="pre">StokenFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'~/.stokenrc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">securid.token.Token</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.stoken.StokenFile" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.stoken.</span></span><span class="sig-name descname"><span class="pre">StokenFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'~/.stokenrc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">Token</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.stoken.StokenFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handler for stokenrc file format</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – stokenrc file path</p></li>
 <li><p><strong>data</strong> – token as string in stokenrc format</p></li>
@@ -243,7 +242,7 @@ $ cat my.json
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.stoken.StokenFile.get_token">
-<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">securid.token.Token</span></a></span></span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile.get_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.stoken.StokenFile.get_token" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">Token</span></a></span></span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile.get_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.stoken.StokenFile.get_token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Token instance</p>
 </dd></dl>
 
@@ -252,7 +251,7 @@ $ cat my.json
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile.parse_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.stoken.StokenFile.parse_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse stokenrc file, return token as string</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – stokenrc file path</p>
 </dd>
 </dl>
@@ -263,7 +262,7 @@ $ cat my.json
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_file_pin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/securid/stoken.html#StokenFile.parse_file_pin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.stoken.StokenFile.parse_file_pin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse stokenrc file, return pin as int or 0 if not found</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – stokenrc file path</p>
 </dd>
 </dl>
@@ -273,10 +272,10 @@ $ cat my.json
 
 </section>
 <section id="module-securid.jsontoken">
-<span id="securid-jsontoken"></span><h2>securid.jsontoken<a class="headerlink" href="#module-securid.jsontoken" title="Permalink to this headline">¶</a></h2>
+<span id="securid-jsontoken"></span><h2>securid.jsontoken<a class="headerlink" href="#module-securid.jsontoken" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="securid.jsontoken.JSONTokenFile">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.jsontoken.</span></span><span class="sig-name descname"><span class="pre">JSONTokenFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">securid.token.Token</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/jsontoken.html#JSONTokenFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.jsontoken.JSONTokenFile" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.jsontoken.</span></span><span class="sig-name descname"><span class="pre">JSONTokenFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">Token</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/securid/jsontoken.html#JSONTokenFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.jsontoken.JSONTokenFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handler for JSON file format</p>
 <p>Example:</p>
 <dl class="simple">
@@ -293,7 +292,7 @@ $ cat my.json
 </dl>
 <p>}</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> – JSON file path</p></li>
 <li><p><strong>data</strong> – token as string in JSON format or as a dictionary</p></li>
@@ -309,10 +308,10 @@ $ cat my.json
 
 <dl class="py method">
 <dt class="sig sig-object py" id="securid.jsontoken.JSONTokenFile.get_token">
-<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">securid.token.Token</span></a></span></span><a class="reference internal" href="_modules/securid/jsontoken.html#JSONTokenFile.get_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.jsontoken.JSONTokenFile.get_token" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#securid.Token" title="securid.token.Token"><span class="pre">Token</span></a></span></span><a class="reference internal" href="_modules/securid/jsontoken.html#JSONTokenFile.get_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.jsontoken.JSONTokenFile.get_token" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Token instance</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>password</strong> – optional password for decrypting the token</p>
 </dd>
 </dl>
@@ -323,7 +322,7 @@ $ cat my.json
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/jsontoken.html#JSONTokenFile.parse_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.jsontoken.JSONTokenFile.parse_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse JSON file, return content as string</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – JSON file path</p>
 </dd>
 </dl>
@@ -333,7 +332,7 @@ $ cat my.json
 
 </section>
 <section id="module-securid.exceptions">
-<span id="securid-exceptions"></span><h2>securid.exceptions<a class="headerlink" href="#module-securid.exceptions" title="Permalink to this headline">¶</a></h2>
+<span id="securid-exceptions"></span><h2>securid.exceptions<a class="headerlink" href="#module-securid.exceptions" title="Permalink to this heading">¶</a></h2>
 <dl class="py exception">
 <dt class="sig sig-object py" id="securid.exceptions.InvalidSeed">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidSeed</span></span><a class="reference internal" href="_modules/securid/exceptions.html#InvalidSeed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.exceptions.InvalidSeed" title="Permalink to this definition">¶</a></dt>
@@ -367,7 +366,7 @@ This can occur when password is required for decrypting the token.</p>
 
 </section>
 <section id="module-securid.utils">
-<span id="securid-utils"></span><h2>securid.utils<a class="headerlink" href="#module-securid.utils" title="Permalink to this headline">¶</a></h2>
+<span id="securid-utils"></span><h2>securid.utils<a class="headerlink" href="#module-securid.utils" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="securid.utils.Bytearray">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">Bytearray</span></span><a class="reference internal" href="_modules/securid/utils.html#Bytearray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.Bytearray" title="Permalink to this definition">¶</a></dt>
@@ -375,32 +374,32 @@ This can occur when password is required for decrypting the token.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="securid.utils.aes_ecb_decrypt">
-<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">aes_ecb_decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/utils.html#aes_ecb_decrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.aes_ecb_decrypt" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">aes_ecb_decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/utils.html#aes_ecb_decrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.aes_ecb_decrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decrypt data with the key using AES-128 ECB</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="securid.utils.aes_ecb_encrypt">
-<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">aes_ecb_encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/utils.html#aes_ecb_encrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.aes_ecb_encrypt" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">aes_ecb_encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/utils.html#aes_ecb_encrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.aes_ecb_encrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encrypt data with the key using AES-128 ECB</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="securid.utils.cbc_hash">
-<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">cbc_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">securid.utils.Bytearray</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/utils.html#cbc_hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.cbc_hash" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">cbc_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">iv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytearray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#securid.utils.Bytearray" title="securid.utils.Bytearray"><span class="pre">Bytearray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/securid/utils.html#cbc_hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.cbc_hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate cipher block chaining message authentication code</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="securid.utils.fromisoformat">
-<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">fromisoformat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">datetime.date</span></span></span><a class="reference internal" href="_modules/securid/utils.html#fromisoformat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.fromisoformat" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">securid.utils.</span></span><span class="sig-name descname"><span class="pre">fromisoformat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">date</span></span></span><a class="reference internal" href="_modules/securid/utils.html#fromisoformat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#securid.utils.fromisoformat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a YYYY-MM-DD string into a date object</p>
 </dd></dl>
 
 </section>
 </section>
 <section id="table-of-contents">
-<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h1>
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <ul class="simple">
@@ -417,8 +416,9 @@ This can occur when password is required for decrypting the token.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">python-securid - RSA SecurID 128-bit Token Library</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
@@ -432,16 +432,62 @@ This can occur when password is required for decrypting the token.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-securid">API documentation</a><ul>
-<li><a class="reference internal" href="#module-securid.sdtid">securid.sdtid</a></li>
-<li><a class="reference internal" href="#module-securid.stoken">securid.stoken</a></li>
-<li><a class="reference internal" href="#module-securid.jsontoken">securid.jsontoken</a></li>
-<li><a class="reference internal" href="#module-securid.exceptions">securid.exceptions</a></li>
-<li><a class="reference internal" href="#module-securid.utils">securid.utils</a></li>
+<li><a class="reference internal" href="#securid.Token"><code class="docutils literal notranslate"><span class="pre">Token</span></code></a><ul>
+<li><a class="reference internal" href="#securid.Token.at"><code class="docutils literal notranslate"><span class="pre">Token.at()</span></code></a></li>
+<li><a class="reference internal" href="#securid.Token.generate_otp"><code class="docutils literal notranslate"><span class="pre">Token.generate_otp()</span></code></a></li>
+<li><a class="reference internal" href="#securid.Token.now"><code class="docutils literal notranslate"><span class="pre">Token.now()</span></code></a></li>
+<li><a class="reference internal" href="#securid.Token.time_left"><code class="docutils literal notranslate"><span class="pre">Token.time_left()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-securid.sdtid">securid.sdtid</a><ul>
+<li><a class="reference internal" href="#securid.sdtid.SdtidFile"><code class="docutils literal notranslate"><span class="pre">SdtidFile</span></code></a><ul>
+<li><a class="reference internal" href="#securid.sdtid.SdtidFile.get_token"><code class="docutils literal notranslate"><span class="pre">SdtidFile.get_token()</span></code></a></li>
+<li><a class="reference internal" href="#securid.sdtid.SdtidFile.parse_file"><code class="docutils literal notranslate"><span class="pre">SdtidFile.parse_file()</span></code></a></li>
+<li><a class="reference internal" href="#securid.sdtid.SdtidFile.xml_to_dict"><code class="docutils literal notranslate"><span class="pre">SdtidFile.xml_to_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-securid.stoken">securid.stoken</a><ul>
+<li><a class="reference internal" href="#securid.stoken.StokenFile"><code class="docutils literal notranslate"><span class="pre">StokenFile</span></code></a><ul>
+<li><a class="reference internal" href="#securid.stoken.StokenFile.get_token"><code class="docutils literal notranslate"><span class="pre">StokenFile.get_token()</span></code></a></li>
+<li><a class="reference internal" href="#securid.stoken.StokenFile.parse_file"><code class="docutils literal notranslate"><span class="pre">StokenFile.parse_file()</span></code></a></li>
+<li><a class="reference internal" href="#securid.stoken.StokenFile.parse_file_pin"><code class="docutils literal notranslate"><span class="pre">StokenFile.parse_file_pin()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-securid.jsontoken">securid.jsontoken</a><ul>
+<li><a class="reference internal" href="#securid.jsontoken.JSONTokenFile"><code class="docutils literal notranslate"><span class="pre">JSONTokenFile</span></code></a><ul>
+<li><a class="reference internal" href="#securid.jsontoken.JSONTokenFile.export_token"><code class="docutils literal notranslate"><span class="pre">JSONTokenFile.export_token()</span></code></a></li>
+<li><a class="reference internal" href="#securid.jsontoken.JSONTokenFile.get_token"><code class="docutils literal notranslate"><span class="pre">JSONTokenFile.get_token()</span></code></a></li>
+<li><a class="reference internal" href="#securid.jsontoken.JSONTokenFile.parse_file"><code class="docutils literal notranslate"><span class="pre">JSONTokenFile.parse_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-securid.exceptions">securid.exceptions</a><ul>
+<li><a class="reference internal" href="#securid.exceptions.InvalidSeed"><code class="docutils literal notranslate"><span class="pre">InvalidSeed</span></code></a></li>
+<li><a class="reference internal" href="#securid.exceptions.InvalidSerial"><code class="docutils literal notranslate"><span class="pre">InvalidSerial</span></code></a></li>
+<li><a class="reference internal" href="#securid.exceptions.InvalidSignature"><code class="docutils literal notranslate"><span class="pre">InvalidSignature</span></code></a></li>
+<li><a class="reference internal" href="#securid.exceptions.InvalidToken"><code class="docutils literal notranslate"><span class="pre">InvalidToken</span></code></a></li>
+<li><a class="reference internal" href="#securid.exceptions.ParseException"><code class="docutils literal notranslate"><span class="pre">ParseException</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-securid.utils">securid.utils</a><ul>
+<li><a class="reference internal" href="#securid.utils.Bytearray"><code class="docutils literal notranslate"><span class="pre">Bytearray</span></code></a></li>
+<li><a class="reference internal" href="#securid.utils.aes_ecb_decrypt"><code class="docutils literal notranslate"><span class="pre">aes_ecb_decrypt()</span></code></a></li>
+<li><a class="reference internal" href="#securid.utils.aes_ecb_encrypt"><code class="docutils literal notranslate"><span class="pre">aes_ecb_encrypt()</span></code></a></li>
+<li><a class="reference internal" href="#securid.utils.cbc_hash"><code class="docutils literal notranslate"><span class="pre">cbc_hash()</span></code></a></li>
+<li><a class="reference internal" href="#securid.utils.fromisoformat"><code class="docutils literal notranslate"><span class="pre">fromisoformat()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -458,7 +504,7 @@ This can occur when password is required for decrypting the token.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -477,7 +523,7 @@ This can occur when password is required for decrypting the token.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>
