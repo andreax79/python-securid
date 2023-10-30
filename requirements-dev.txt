@@ -1,9 +1,11 @@
-coverage
+black
+build
+coverage[toml]
 flake8
+isort
 mypy
-sphinx
-tox
-black
-twine<3.4
-black
+pytest
+pytest-cov
 setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+sphinx
+twine<3.4

@@ -9,25 +9,37 @@ help:
 	@echo - make clean
 	@echo - make doc
 
+isort:
+	isort --profile black securid tests
+
+black: isort
+	black securid tests
+
 coverage:
-	python3 -m coverage run --source=securid test.py && python3 -m coverage report -m
+	pytest --cov --cov-report=term-missing
 
 test:
-	python3 setup.py test
+	pytest
 
 typecheck:
 	mypy --strict --no-warn-unused-ignores securid
 
 lint:
-	python3 setup.py flake8
+	flake8 securid.py securid tests
 
 release:
-	python3 ./setup.py bdist_wheel
+	python -m build --sdist --wheel
 	cd docs; $(MAKE) html
 
 clean:
 	-rm -rf build dist
 	-rm -rf *.egg-info
+	-rm -rf bin lib share pyvenv.cfg
+
+venv:
+	python3 -m virtualenv .
+	. bin/activate; pip install -Ur requirements.txt
+	. bin/activate; pip install -Ur requirements-dev.txt
 
 doc:
 	cd docs; $(MAKE) html
