@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
+import argparse
 import os
 import sys
 import time
 from datetime import datetime
-import argparse
-from typing import Optional, List, NoReturn
-from .token import AbstractTokenFile, Token
-from .stoken import StokenFile, DEFAULT_STOKEN_FILENAME
-from .sdtid import SdtidFile
-from .jsontoken import JSONTokenFile
-from .exceptions import ParseException, InvalidSignature
+from typing import List, NoReturn, Optional
 
-__all__ = ['show_token', 'export', 'interactive', 'show_version', 'main']
+from .exceptions import InvalidSignature, ParseException
+from .jsontoken import JSONTokenFile
+from .sdtid import SdtidFile
+from .stoken import DEFAULT_STOKEN_FILENAME, StokenFile
+from .token import AbstractTokenFile, Token
+
+__all__ = ["show_token", "export", "interactive", "show_version", "main"]
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
@@ -24,7 +25,7 @@ def show_token(token: Token, pin: Optional[int] = None, verbose: bool = False) -
     if verbose:
         for_time = datetime.utcnow()
         print(token)
-        print('{} {:2}s'.format(token.at(for_time, pin=pin), token.time_left(for_time)))
+        print("{} {:2}s".format(token.at(for_time, pin=pin), token.time_left(for_time)))
     else:
         print(token.now(pin=pin))
     return EXIT_SUCCESS
@@ -34,7 +35,7 @@ def export(token: Token) -> int:
     "Export token into JSON"
     f = JSONTokenFile(token=token)
     sys.stdout.buffer.write(f.export_token())
-    sys.stdout.buffer.write(b'\n')
+    sys.stdout.buffer.write(b"\n")
     return EXIT_SUCCESS
 
 
@@ -44,8 +45,8 @@ def interactive(token: Token, test: bool = False, pin: Optional[int] = None) -> 
         while True:
             for_time = datetime.utcnow()
             left = token.time_left(for_time)
-            bar = ('#' * left) + ('.' * (token.interval - left))
-            print('{} {:2}s [{}]'.format(token.at(for_time, pin=pin), left, bar))
+            bar = ("#" * left) + ("." * (token.interval - left))
+            print("{} {:2}s [{}]".format(token.at(for_time, pin=pin), left, bar))
             if test:
                 raise KeyboardInterrupt
             time.sleep(1)
@@ -78,33 +79,29 @@ def main(args: Optional[List[str]] = None) -> int:
     prog = os.path.basename(sys.argv[0])
     parser = ArgumentParser()
     parser.add_argument(
-        '-f',
-        '--filename',
+        "-f",
+        "--filename",
         help="token file (sdtid, stokenrc or json)",
-        dest='filename',
+        dest="filename",
         default=DEFAULT_STOKEN_FILENAME,
     )
-    parser.add_argument('--password', dest='password')
-    parser.add_argument('--pin', type=int, dest='pin')
+    parser.add_argument("--password", dest="password")
+    parser.add_argument("--pin", type=int, dest="pin")
+    parser.add_argument("--export", help="export token into JSON", action="store_true", dest="export")
     parser.add_argument(
-        '--export', help="export token into JSON", action='store_true', dest='export'
-    )
-    parser.add_argument(
-        '-i',
-        '--interactive',
+        "-i",
+        "--interactive",
         help="show the code every second until interrupted",
-        action='store_true',
-        dest='interactive',
+        action="store_true",
+        dest="interactive",
     )
+    parser.add_argument("-v", "--verbose", help="verbose output", action="store_true", dest="verbose")
     parser.add_argument(
-        '-v', '--verbose', help="verbose output", action='store_true', dest='verbose'
-    )
-    parser.add_argument(
-        '-V',
-        '--version',
+        "-V",
+        "--version",
         help="show version and exit",
-        action='store_true',
-        dest='version',
+        action="store_true",
+        dest="version",
     )
     try:
         cli_args = parser.parse_args(args=args)

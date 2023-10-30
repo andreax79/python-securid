@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 
+import math
 import os
 import os.path
-import math
 from datetime import date
-from typing import Union, Optional
-from .token import SERIAL_LENGTH, Token, AbstractTokenFile
-from .utils import AES_KEY_SIZE, Bytes, aes_ecb_encrypt, aes_ecb_decrypt, Bytearray
+from typing import Optional, Union
+
 from .exceptions import (
-    ParseException,
-    InvalidToken,
-    InvalidSignature,
     InvalidSeed,
     InvalidSerial,
+    InvalidSignature,
+    InvalidToken,
+    ParseException,
 )
+from .token import SERIAL_LENGTH, AbstractTokenFile, Token
+from .utils import AES_KEY_SIZE, Bytearray, Bytes, aes_ecb_decrypt, aes_ecb_encrypt
 
-__all__ = ['DEFAULT_STOKEN_FILENAME', 'StokenFile']
+__all__ = ["DEFAULT_STOKEN_FILENAME", "StokenFile"]
 
-DEFAULT_STOKEN_FILENAME = '~/.stokenrc'
+DEFAULT_STOKEN_FILENAME = "~/.stokenrc"
 FL_128BIT = 1 << 14
 FL_PASSPROT = 1 << 13
 FL_SNPROT = 1 << 12
@@ -40,12 +41,7 @@ BINENC_OFS = VER_LENGTH + SERIAL_LENGTH
 MIN_TOKEN_BITS = 189
 MAX_TOKEN_BITS = 255
 MAX_TOKEN_LENGTH = int(MAX_TOKEN_BITS / TOKEN_BITS_PER_CHAR)
-MIN_TOKEN_LENGTH = int(
-    (MIN_TOKEN_BITS / TOKEN_BITS_PER_CHAR)
-    + SERIAL_LENGTH
-    + VER_LENGTH
-    + CHECKSUM_LENGTH
-)
+MIN_TOKEN_LENGTH = int((MIN_TOKEN_BITS / TOKEN_BITS_PER_CHAR) + SERIAL_LENGTH + VER_LENGTH + CHECKSUM_LENGTH)
 SECURID_EPOCH = 730120  # 2000/01/01 proleptic Gregorian ordinal
 
 
@@ -74,7 +70,7 @@ class StokenFile(AbstractTokenFile):
             self.token = token
         elif data is not None:
             if isinstance(data, str):
-                data = bytes(data, 'ascii')
+                data = bytes(data, "ascii")
             self.filename = None
             self.data = data
             self.token = self.v2_decode_token(self.data)
@@ -91,14 +87,14 @@ class StokenFile(AbstractTokenFile):
 
         :param filename: stokenrc file path
         """
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             for line in f.readlines():
                 line = line.strip()
-                if b' ' in line:
-                    k, v = line.split(b' ', 1)
-                    if k == b'token':
+                if b" " in line:
+                    k, v = line.split(b" ", 1)
+                    if k == b"token":
                         return v
-        raise ParseException('Error parsing {}'.format(filename))
+        raise ParseException("Error parsing {}".format(filename))
 
     @classmethod
     def parse_file_pin(cls, filename: str) -> int:
@@ -107,19 +103,19 @@ class StokenFile(AbstractTokenFile):
 
         :param filename: stokenrc file path
         """
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             for line in f.readlines():
                 line = line.strip()
-                if b' ' in line:
-                    k, v = line.split(b' ', 1)
-                    if k == b'pin':
+                if b" " in line:
+                    k, v = line.split(b" ", 1)
+                    if k == b"pin":
                         return int(v)
         return 0
 
     @classmethod
     def v2_decode_token(cls, data: Bytes) -> Token:
         if len(data) < MIN_TOKEN_LENGTH or len(data) > MAX_TOKEN_LENGTH:
-            raise InvalidToken('Invalid token length')
+            raise InvalidToken("Invalid token length")
         cls._verify_checksum(data)
         # version = data[0] - ord('0')
         d = cls._numinput_to_bits(data, BINENC_BITS, offset=BINENC_OFS)
@@ -127,7 +123,7 @@ class StokenFile(AbstractTokenFile):
         flags = cls._get_bits(d, 128, 16)
         seed_hash = cls._get_bits(d, 159, 15)
         exp_date = date.fromordinal(cls._get_bits(d, 144, 14) + SECURID_EPOCH)
-        serial = str(data[VER_LENGTH : VER_LENGTH + SERIAL_LENGTH], 'ascii')
+        serial = str(data[VER_LENGTH : VER_LENGTH + SERIAL_LENGTH], "ascii")
         interval = 60 if ((flags & FLD_NUMSECONDS_MASK) >> FLD_NUMSECONDS_SHIFT) else 30
         digits = ((flags & FLD_DIGIT_MASK) >> FLD_DIGIT_SHIFT) + 1
         seed = cls.v2_decrypt_seed(enc_seed, seed_hash)
@@ -141,11 +137,11 @@ class StokenFile(AbstractTokenFile):
 
     def v2_encode_token(self) -> None:
         if not self.token.seed:
-            raise InvalidSeed('Missing seed')
+            raise InvalidSeed("Missing seed")
         if not self.token.serial:
-            raise InvalidSerial('Missing serial')
+            raise InvalidSerial("Missing serial")
         if len(self.token.serial) != SERIAL_LENGTH:
-            raise InvalidSerial('Serial length != {}'.format(SERIAL_LENGTH))
+            raise InvalidSerial("Serial length != {}".format(SERIAL_LENGTH))
         flags = FL_TIMESEEDS | FL_128BIT
         flags |= (self.token.digits - 1 << FLD_DIGIT_SHIFT) & FLD_DIGIT_MASK
         flags |= (1 << FLD_NUMSECONDS_SHIFT) if self.token.interval == 60 else 0
@@ -162,13 +158,11 @@ class StokenFile(AbstractTokenFile):
             d,
             144,
             14,
-            (self.token.exp_date.toordinal() - SECURID_EPOCH)
-            if self.token.exp_date
-            else 0,
+            (self.token.exp_date.toordinal() - SECURID_EPOCH) if self.token.exp_date else 0,
         )
 
         data = Bytearray(81)
-        data.arraycpy(b'2', dest_offset=0)  # version
+        data.arraycpy(b"2", dest_offset=0)  # version
         data.arraycpy(self._bits_to_numoutput(d, BINENC_BITS), dest_offset=BINENC_OFS)
         data.arraycpy(self.token.serial, n=SERIAL_LENGTH, dest_offset=VER_LENGTH)
 
@@ -187,7 +181,7 @@ class StokenFile(AbstractTokenFile):
         token_mac = cls._get_bits(d, 0, 15)
         computed_mac = cls._securid_shortmac(data[: len(data) - CHECKSUM_LENGTH])
         if token_mac != computed_mac:
-            raise InvalidSignature('Invalid checksum')
+            raise InvalidSignature("Invalid checksum")
 
     @classmethod
     def _numinput_to_bits(cls, data: Bytes, n_bits: int, offset: int = 0) -> bytes:
@@ -195,7 +189,7 @@ class StokenFile(AbstractTokenFile):
         out = bytearray(int(MAX_TOKEN_BITS / 8 + 2))
         pos = 0
         for t in data[offset:]:
-            decoded = (t - ord('0')) & 0x07
+            decoded = (t - ord("0")) & 0x07
             decoded = decoded << bitpos
             out[0 + pos] = out[0 + pos] | decoded >> 8
             out[1 + pos] = out[1 + pos] | decoded & 0xFF
@@ -215,7 +209,7 @@ class StokenFile(AbstractTokenFile):
         pos = 0
         for i in range(n_bits, 0, -TOKEN_BITS_PER_CHAR):
             binary = (data[pos] << 8) | data[pos + 1]
-            out.append(((binary >> bitpos) & 0x07) + ord('0'))
+            out.append(((binary >> bitpos) & 0x07) + ord("0"))
             bitpos -= TOKEN_BITS_PER_CHAR
             if bitpos < 0:
                 bitpos = bitpos + 8
@@ -301,7 +295,7 @@ class StokenFile(AbstractTokenFile):
         seed = aes_ecb_decrypt(key_hash, enc_seed)
         calc_seed_hash = cls._short_hash(cls._securid_mac(seed))
         if calc_seed_hash != seed_hash:
-            raise InvalidSignature('Seed decryption failed')
+            raise InvalidSignature("Seed decryption failed")
         return seed
 
     def get_token(self, password: Optional[str] = None) -> Token:

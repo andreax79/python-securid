@@ -3,20 +3,20 @@
 import binascii
 import string
 from abc import ABC, abstractmethod
-from datetime import datetime, date
-from typing import Any, Union, Optional
+from datetime import date, datetime
+from typing import Any, Optional, Union
 
 from .exceptions import InvalidSeed
 from .utils import (
     AES_KEY_SIZE,
-    BytesStr,
-    random,
     Bytearray,
+    BytesStr,
     aes_ecb_encrypt,
     fromisoformat,
+    random,
 )
 
-__all__ = ['Token', 'AbstractTokenFile', 'SERIAL_LENGTH']
+__all__ = ["Token", "AbstractTokenFile", "SERIAL_LENGTH"]
 
 DEFAULT_DIGITS = 6
 DEFAULT_INTERVAL = 60
@@ -40,7 +40,7 @@ class Token(object):
 
     def __init__(
         self,
-        serial: BytesStr = '',
+        serial: BytesStr = "",
         seed: Union[Optional[bytes], Optional[str]] = None,
         interval: int = DEFAULT_INTERVAL,
         digits: int = DEFAULT_DIGITS,
@@ -60,10 +60,10 @@ class Token(object):
         :param pin: PIN (default: 0)
         """
         if not isinstance(serial, str):
-            serial = str(serial, 'ascii')
+            serial = str(serial, "ascii")
         self.serial = serial.zfill(SERIAL_LENGTH)
         if isinstance(seed, str):
-            seed = bytes(seed, 'ascii')
+            seed = bytes(seed, "ascii")
         if isinstance(exp_date, str):
             exp_date = fromisoformat(exp_date)
         self.seed = seed
@@ -82,13 +82,11 @@ class Token(object):
         :returns: OTP code
         """
         if not self.seed:
-            raise InvalidSeed('Missing seed')
+            raise InvalidSeed("Missing seed")
         key = self.seed
         bcd_time = self._compute_bcd_time(input)
         for bcd_time_bytes in BCD_TIME_BYTES:
-            key = aes_ecb_encrypt(
-                key, self._key_from_time(bcd_time, bcd_time_bytes, self.serial)
-            )
+            key = aes_ecb_encrypt(key, self._key_from_time(bcd_time, bcd_time_bytes, self.serial))
 
         return self._token_pin(self._output_code(input, key), pin)
 
@@ -132,7 +130,7 @@ class Token(object):
         Compute BCD time for the given time
         """
         t = input.replace(minute=input.minute & (-2 if self.interval == 30 else -4))
-        return binascii.unhexlify(t.strftime('%Y%m%d%H%M0000'))
+        return binascii.unhexlify(t.strftime("%Y%m%d%H%M0000"))
 
     def _output_code(self, input: datetime, key: bytes) -> str:
         """
@@ -146,10 +144,8 @@ class Token(object):
             i = ((input.minute & 0x01) << 3) | ((input.second >= 30) << 2)
         else:
             i = (input.minute & 0x03) << 2
-        tokencode = (
-            (key[i + 0] << 24) | (key[i + 1] << 16) | (key[i + 2] << 8) | key[i + 3]
-        )
-        return ('0' * self.digits + str(tokencode))[-self.digits :]
+        tokencode = (key[i + 0] << 24) | (key[i + 1] << 16) | (key[i + 2] << 8) | key[i + 3]
+        return ("0" * self.digits + str(tokencode))[-self.digits :]
 
     def _token_pin(self, token: str, pin: Optional[int] = None) -> str:
         """
@@ -180,22 +176,20 @@ class Token(object):
         key.arrayset(0xBB, 4, dest_offset=12)
         # write BCD-encoded partial serial number
         for i, p in enumerate(range(4, 12, 2)):
-            key[i + 8] = ((ord(serial[p]) - ord('0')) << 4) | (
-                ord(serial[p + 1]) - ord('0')
-            )
+            key[i + 8] = ((ord(serial[p]) - ord("0")) << 4) | (ord(serial[p + 1]) - ord("0"))
         return bytes(key)
 
     @classmethod
     def random(
         cls,
-        serial: BytesStr = '',
+        serial: BytesStr = "",
         interval: int = DEFAULT_INTERVAL,
         digits: int = DEFAULT_DIGITS,
         exp_date: Optional[date] = None,
         issuer: Optional[str] = None,
         label: Optional[str] = None,
         pin: Optional[int] = None,
-    ) -> 'Token':
+    ) -> "Token":
         seed = bytes([random.randint(0, 255) for _ in range(0, AES_KEY_SIZE)])
         """
             Generate a new random token
@@ -210,9 +204,7 @@ class Token(object):
             :returns: the generated Token instance
         """
         if not serial:
-            serial = ''.join(
-                [random.choice(string.digits) for _ in range(0, SERIAL_LENGTH)]
-            )
+            serial = "".join([random.choice(string.digits) for _ in range(0, SERIAL_LENGTH)])
         return Token(
             serial=serial,
             seed=seed,
@@ -227,21 +219,17 @@ class Token(object):
     @classmethod
     def _fmt(cls, k: str, v: Any) -> str:
         if v is None:
-            return ''
+            return ""
         elif cls.__annotations__[k] in [bytes, Optional[bytes]]:
-            return str(binascii.hexlify(v), 'ascii')
+            return str(binascii.hexlify(v), "ascii")
         else:
             return str(v)
 
     def __repr__(self) -> str:
-        return str(
-            dict([(k, self._fmt(k, v)) for k, v in sorted(self.__dict__.items())])
-        )
+        return str(dict([(k, self._fmt(k, v)) for k, v in sorted(self.__dict__.items())]))
 
     def __str__(self) -> str:
-        return ' '.join(
-            '%s: %s' % (k, self._fmt(k, v)) for k, v in sorted(self.__dict__.items())
-        )
+        return " ".join("%s: %s" % (k, self._fmt(k, v)) for k, v in sorted(self.__dict__.items()))
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Token) and self.__dict__ == other.__dict__

@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 
 import base64
-from datetime import date
-from typing import Any, Optional, Dict
 from collections import OrderedDict
+from typing import Any, Dict, Optional
 from xml.etree import cElementTree as ET
-from .token import Token, AbstractTokenFile
+
+from .exceptions import InvalidSignature, ParseException
+from .token import AbstractTokenFile, Token
 from .utils import (
     AES_BLOCK_SIZE,
     AES_KEY_SIZE,
-    BytesStr,
     Bytearray,
+    BytesStr,
     aes_ecb_encrypt,
-    xor_block,
     cbc_hash,
     fromisoformat,
+    xor_block,
 )
-from .exceptions import ParseException, InvalidSignature
 
 __all__ = [
-    'SdtidFile',
+    "SdtidFile",
 ]
 
 TOKEN_ENC_IV = bytes(
@@ -105,17 +105,17 @@ class SdtidFile(AbstractTokenFile):
         :param filename: sdtid file path
         """
         try:
-            with open(filename, 'r') as f:
+            with open(filename, "r") as f:
                 xml = ET.XML(f.read())
         except ET.ParseError:
-            raise ParseException('Error parsing {}'.format(filename))
+            raise ParseException("Error parsing {}".format(filename))
         self.values = self.xml_to_dict(xml)
-        serial = self.get('SN')
-        interval = self.get('Interval', default=60, kind='int')
-        digits = self.get('Digits', default=6, kind='int')
-        exp_date = self.get('Death', kind='date')
-        issuer = self.get('Origin')
-        label = self.get('UserLogin') or serial
+        serial = self.get("SN")
+        interval = self.get("Interval", default=60, kind="int")
+        digits = self.get("Digits", default=6, kind="int")
+        exp_date = self.get("Death", kind="date")
+        issuer = self.get("Origin")
+        label = self.get("UserLogin") or serial
         self.token = Token(
             serial=serial,
             interval=interval,
@@ -136,30 +136,24 @@ class SdtidFile(AbstractTokenFile):
         return self.token
 
     def decrypt_seed(self, password: Optional[str] = None) -> bytes:
-        secret = self.get('Secret', kind='base64')
-        dest = self.get('Dest')
-        name = self.get('Name')
+        secret = self.get("Secret", kind="base64")
+        dest = self.get("Dest")
+        name = self.get("Name")
         if password is None:
-            password = self.get('Origin')
-        key = self.decrypt_secret(
-            secret, name, self.hash_password(password, dest, name)
-        )
+            password = self.get("Origin")
+        key = self.decrypt_secret(secret, name, self.hash_password(password, dest, name))
         self.verify_mac(
-            'Header',
-            'BatchMAC',
-            self.get('Name'),
-            'HeaderMAC',
-            'TKNHeader',
+            "Header",
+            "BatchMAC",
+            self.get("Name"),
+            "HeaderMAC",
+            "TKNHeader",
             key,
             BATCH_MAC_IV,
         )
-        self.verify_mac(
-            'Token', 'TokenMAC', self.get('SN'), 'TokenMAC', 'TKN', key, TOKEN_MAC_IV
-        )
-        enc_seed = self.get('Seed', kind='base64')
-        token_enc_key = self.calc_key(
-            'TokenEncrypt', self.token.serial, key, TOKEN_ENC_IV
-        )
+        self.verify_mac("Token", "TokenMAC", self.get("SN"), "TokenMAC", "TKN", key, TOKEN_MAC_IV)
+        enc_seed = self.get("Seed", kind="base64")
+        token_enc_key = self.calc_key("TokenEncrypt", self.token.serial, key, TOKEN_ENC_IV)
         return self.decrypt_enc_seed(enc_seed, self.token.serial, token_enc_key)
 
     def verify_mac(
@@ -173,12 +167,12 @@ class SdtidFile(AbstractTokenFile):
         iv: bytes,
     ) -> None:
         mac_key = self.calc_key(str0, str1, key1, iv)
-        mac = self.get(node, kind='base64')
+        mac = self.get(node, kind="base64")
         hs = SessionHash()
-        hs.recursive_hash(section, self.values['TKNBatch'][section])
+        hs.recursive_hash(section, self.values["TKNBatch"][section])
         mac_calc = hs.compute_hash(mac_key, iv)
         if mac != mac_calc:
-            raise InvalidSignature('{} MAC check failed'.format(kind))
+            raise InvalidSignature("{} MAC check failed".format(kind))
 
     @classmethod
     def hash_password(cls, password: str, salt0: str, salt1: str) -> bytes:
@@ -200,7 +194,7 @@ class SdtidFile(AbstractTokenFile):
     @classmethod
     def decrypt_secret(cls, enc_bin: bytes, str0: bytes, key: bytes) -> bytes:
         buf = Bytearray(AES_KEY_SIZE)
-        buf.arraycpy('Secret', n=8)
+        buf.arraycpy("Secret", n=8)
         buf.arraycpy(str0, n=8, dest_offset=8)
         return xor_block(aes_ecb_encrypt(key, buf), enc_bin)
 
@@ -208,7 +202,7 @@ class SdtidFile(AbstractTokenFile):
     def decrypt_enc_seed(cls, enc_bin: bytes, str0: str, key: bytes) -> bytes:
         buf = Bytearray(AES_KEY_SIZE)
         buf.arraycpy(str0, n=8)
-        buf.arraycpy('Seed', n=8, dest_offset=8)
+        buf.arraycpy("Seed", n=8, dest_offset=8)
         return xor_block(aes_ecb_encrypt(key, buf), enc_bin)
 
     @classmethod
@@ -235,24 +229,24 @@ class SdtidFile(AbstractTokenFile):
                         dd[k] = v
             return OrderedDict({xml.tag: dd})
         else:
-            return OrderedDict({xml.tag: (xml.text or '')})
+            return OrderedDict({xml.tag: (xml.text or "")})
 
     def get(self, name: str, default: Any = None, kind: Optional[str] = None) -> Any:
-        value = self.values['TKNBatch']['TKN'].get(name)
+        value = self.values["TKNBatch"]["TKN"].get(name)
         if value is None:
-            value = self.values['TKNBatch']['TKNHeader'].get(name)
+            value = self.values["TKNBatch"]["TKNHeader"].get(name)
         if value is None:
-            value = self.values['TKNBatch']['TKNHeader'].get('Def' + name)
+            value = self.values["TKNBatch"]["TKNHeader"].get("Def" + name)
         if value is None:
             value = default
-        if kind == 'base64':
-            if value[0] == '=':
+        if kind == "base64":
+            if value[0] == "=":
                 value = value[1:]
             value = base64.b64decode(value)
-        elif kind == 'int':
+        elif kind == "int":
             value = int(value)
-        elif kind == 'date':
-            value = fromisoformat(value.replace('/', '-'))
+        elif kind == "date":
+            value = fromisoformat(value.replace("/", "-"))
         return value
 
 
@@ -267,9 +261,9 @@ class SessionHash(object):
     def recursive_hash(self, name: str, node: Dict[str, Any]) -> None:
         # from https://github.com/cernekee/stoken
         for k, v in node.items():
-            if k.endswith('MAC'):
+            if k.endswith("MAC"):
                 continue
-            longname = '%s.%s' % (name, k)
+            longname = "%s.%s" % (name, k)
             remain = MAX_HASH_DATA - self.pos
             if isinstance(v, dict):
                 self.recursive_hash(longname, v)
@@ -278,25 +272,23 @@ class SessionHash(object):
                     # "An empty string is valid XML but it might violate
                     # the sdtid format.  We'll handle it the same bizarre
                     # way as RSA just to be safe."
-                    data = '%s </%s>\n' % (longname, name)
+                    data = "%s </%s>\n" % (longname, name)
                     self._append_data(data)
                 else:
-                    data = '%s %s\n' % (longname, v)
+                    data = "%s %s\n" % (longname, v)
                     self._append_data(data)
                     length = len(data) + self.padding
                     if length <= 16 and length < remain:
                         self.pos = self.pos & ~0xF
                         self._append_data(data, n=min(len(data), remain))
-                        self.data.arrayset(
-                            0, dest_offset=self.pos + len(data), n=self.padding
-                        )
+                        self.data.arrayset(0, dest_offset=self.pos + len(data), n=self.padding)
                 #  This doesn't really make sense but it's required for compatibility
                 self.pos = self.pos + len(data) + self.padding
                 self.padding = self.pos & 0xF or 0x10
 
     def _append_data(self, data: BytesStr, n: Optional[int] = None) -> None:
         if isinstance(data, str):
-            data = bytes(data, 'ascii')
+            data = bytes(data, "ascii")
         if n is None:
             n = len(data)
         self.data[self.pos : self.pos + n] = data[:n]

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 __all__ = [
-    'ParseException',
-    'InvalidToken',
-    'InvalidSignature',
-    'InvalidSeed',
-    'InvalidSerial',
+    "ParseException",
+    "InvalidToken",
+    "InvalidSignature",
+    "InvalidSeed",
+    "InvalidSerial",
 ]
 
 

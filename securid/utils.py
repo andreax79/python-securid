@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-from datetime import datetime, date
-from typing import Union, Optional
+from datetime import date, datetime
+from typing import Optional, Union
+
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 try:  # pragma: no cover
@@ -11,24 +12,24 @@ except ImportError:  # pragma: no cover
 
 
 __all__ = [
-    'AES_BLOCK_SIZE',
-    'AES_KEY_SIZE',
-    'Bytes',
-    'BytesStr',
-    'random',
-    'Bytearray',
-    'aes_ecb_encrypt',
-    'aes_ecb_decrypt',
-    'xor_block',
-    'cbc_hash',
-    'fromisoformat',
+    "AES_BLOCK_SIZE",
+    "AES_KEY_SIZE",
+    "Bytes",
+    "BytesStr",
+    "random",
+    "Bytearray",
+    "aes_ecb_encrypt",
+    "aes_ecb_decrypt",
+    "xor_block",
+    "cbc_hash",
+    "fromisoformat",
 ]
 
 AES_BLOCK_SIZE = 16
 AES_KEY_SIZE = 16
 
-Bytes = Union[bytes, bytearray, 'Bytearray']
-BytesStr = Union[bytes, bytearray, str, 'Bytearray']
+Bytes = Union[bytes, bytearray, "Bytearray"]
+BytesStr = Union[bytes, bytearray, str, "Bytearray"]
 
 
 random = SystemRandom()
@@ -38,11 +39,9 @@ class Bytearray(bytearray):
     def arrayset(self, c: int, n: int, dest_offset: int = 0) -> None:
         self[dest_offset : dest_offset + n] = [c] * n
 
-    def arraycpy(
-        self, src: BytesStr, n: Optional[int] = None, dest_offset: int = 0
-    ) -> None:
+    def arraycpy(self, src: BytesStr, n: Optional[int] = None, dest_offset: int = 0) -> None:
         if isinstance(src, str):
-            src = bytes(src, 'ascii')
+            src = bytes(src, "ascii")
         if n is None:
             n = len(src)
         n = min(n, len(self) - dest_offset, len(src))
@@ -86,4 +85,4 @@ def fromisoformat(dt: str) -> date:
     """
     Convert a YYYY-MM-DD string into a date object
     """
-    return datetime.strptime(dt, '%Y-%m-%d').date()
+    return datetime.strptime(dt, "%Y-%m-%d").date()
