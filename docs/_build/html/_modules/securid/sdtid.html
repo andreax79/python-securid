@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>securid.sdtid &#8212; securid 0.9.5 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -39,25 +39,25 @@
 <span></span><span class="ch">#!/usr/bin/env python</span>
 
 <span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">cElementTree</span> <span class="k">as</span> <span class="n">ET</span>
-<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="n">Token</span><span class="p">,</span> <span class="n">AbstractTokenFile</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InvalidSignature</span><span class="p">,</span> <span class="n">ParseException</span>
+<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="n">AbstractTokenFile</span><span class="p">,</span> <span class="n">Token</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AES_BLOCK_SIZE</span><span class="p">,</span>
     <span class="n">AES_KEY_SIZE</span><span class="p">,</span>
-    <span class="n">BytesStr</span><span class="p">,</span>
     <span class="n">Bytearray</span><span class="p">,</span>
+    <span class="n">BytesStr</span><span class="p">,</span>
     <span class="n">aes_ecb_encrypt</span><span class="p">,</span>
-    <span class="n">xor_block</span><span class="p">,</span>
     <span class="n">cbc_hash</span><span class="p">,</span>
     <span class="n">fromisoformat</span><span class="p">,</span>
+    <span class="n">xor_block</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParseException</span><span class="p">,</span> <span class="n">InvalidSignature</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;SdtidFile&#39;</span><span class="p">,</span>
+    <span class="s2">&quot;SdtidFile&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">TOKEN_ENC_IV</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span>
@@ -123,7 +123,9 @@
 <span class="n">MAX_HASH_DATA</span> <span class="o">=</span> <span class="mi">65536</span>
 
 
-<div class="viewcode-block" id="SdtidFile"><a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile">[docs]</a><span class="k">class</span> <span class="nc">SdtidFile</span><span class="p">(</span><span class="n">AbstractTokenFile</span><span class="p">):</span>
+<div class="viewcode-block" id="SdtidFile">
+<a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile">[docs]</a>
+<span class="k">class</span> <span class="nc">SdtidFile</span><span class="p">(</span><span class="n">AbstractTokenFile</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handler for RSA SecurID sdtid XML file format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -136,24 +138,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SdtidFile.parse_file"><a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.parse_file">[docs]</a>    <span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SdtidFile.parse_file">
+<a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.parse_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse sdtid file</span>
 
 <span class="sd">        :param filename: sdtid file path</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">xml</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
         <span class="k">except</span> <span class="n">ET</span><span class="o">.</span><span class="n">ParseError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParseException</span><span class="p">(</span><span class="s1">&#39;Error parsing </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ParseException</span><span class="p">(</span><span class="s2">&quot;Error parsing </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_to_dict</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
-        <span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SN&#39;</span><span class="p">)</span>
-        <span class="n">interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Interval&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
-        <span class="n">digits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Digits&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
-        <span class="n">exp_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Death&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
-        <span class="n">issuer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Origin&#39;</span><span class="p">)</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;UserLogin&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">serial</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SN&quot;</span><span class="p">)</span>
+        <span class="n">interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Interval&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">digits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Digits&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">exp_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Death&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
+        <span class="n">issuer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Origin&quot;</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;UserLogin&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">serial</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span>
             <span class="n">serial</span><span class="o">=</span><span class="n">serial</span><span class="p">,</span>
             <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
@@ -163,7 +167,10 @@
             <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="SdtidFile.get_token"><a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SdtidFile.get_token">
+<a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.get_token">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the Token instance</span>
 
@@ -173,31 +180,26 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decrypt_seed</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span></div>
 
+
     <span class="k">def</span> <span class="nf">decrypt_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-        <span class="n">secret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Secret&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;base64&#39;</span><span class="p">)</span>
-        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Dest&#39;</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">)</span>
+        <span class="n">secret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Secret&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;base64&quot;</span><span class="p">)</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Dest&quot;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Origin&#39;</span><span class="p">)</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decrypt_secret</span><span class="p">(</span>
-            <span class="n">secret</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="p">)</span>
+            <span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Origin&quot;</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decrypt_secret</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_mac</span><span class="p">(</span>
-            <span class="s1">&#39;Header&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;BatchMAC&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">),</span>
-            <span class="s1">&#39;HeaderMAC&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;TKNHeader&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;Header&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;BatchMAC&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;HeaderMAC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TKNHeader&quot;</span><span class="p">,</span>
             <span class="n">key</span><span class="p">,</span>
             <span class="n">BATCH_MAC_IV</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verify_mac</span><span class="p">(</span>
-            <span class="s1">&#39;Token&#39;</span><span class="p">,</span> <span class="s1">&#39;TokenMAC&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SN&#39;</span><span class="p">),</span> <span class="s1">&#39;TokenMAC&#39;</span><span class="p">,</span> <span class="s1">&#39;TKN&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">TOKEN_MAC_IV</span>
-        <span class="p">)</span>
-        <span class="n">enc_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Seed&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;base64&#39;</span><span class="p">)</span>
-        <span class="n">token_enc_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_key</span><span class="p">(</span>
-            <span class="s1">&#39;TokenEncrypt&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">TOKEN_ENC_IV</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verify_mac</span><span class="p">(</span><span class="s2">&quot;Token&quot;</span><span class="p">,</span> <span class="s2">&quot;TokenMAC&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SN&quot;</span><span class="p">),</span> <span class="s2">&quot;TokenMAC&quot;</span><span class="p">,</span> <span class="s2">&quot;TKN&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">TOKEN_MAC_IV</span><span class="p">)</span>
+        <span class="n">enc_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Seed&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;base64&quot;</span><span class="p">)</span>
+        <span class="n">token_enc_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_key</span><span class="p">(</span><span class="s2">&quot;TokenEncrypt&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">TOKEN_ENC_IV</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decrypt_enc_seed</span><span class="p">(</span><span class="n">enc_seed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="n">token_enc_key</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">verify_mac</span><span class="p">(</span>
@@ -211,12 +213,12 @@
         <span class="n">iv</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mac_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_key</span><span class="p">(</span><span class="n">str0</span><span class="p">,</span> <span class="n">str1</span><span class="p">,</span> <span class="n">key1</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
-        <span class="n">mac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;base64&#39;</span><span class="p">)</span>
+        <span class="n">mac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;base64&quot;</span><span class="p">)</span>
         <span class="n">hs</span> <span class="o">=</span> <span class="n">SessionHash</span><span class="p">()</span>
-        <span class="n">hs</span><span class="o">.</span><span class="n">recursive_hash</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;TKNBatch&#39;</span><span class="p">][</span><span class="n">section</span><span class="p">])</span>
+        <span class="n">hs</span><span class="o">.</span><span class="n">recursive_hash</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TKNBatch&quot;</span><span class="p">][</span><span class="n">section</span><span class="p">])</span>
         <span class="n">mac_calc</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">compute_hash</span><span class="p">(</span><span class="n">mac_key</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mac</span> <span class="o">!=</span> <span class="n">mac_calc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidSignature</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> MAC check failed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">InvalidSignature</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> MAC check failed&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kind</span><span class="p">))</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">hash_password</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">salt0</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">salt1</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
@@ -238,7 +240,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">decrypt_secret</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">enc_bin</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">str0</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">buf</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="n">AES_KEY_SIZE</span><span class="p">)</span>
-        <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="s1">&#39;Secret&#39;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="s2">&quot;Secret&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
         <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="n">str0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xor_block</span><span class="p">(</span><span class="n">aes_ecb_encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">buf</span><span class="p">),</span> <span class="n">enc_bin</span><span class="p">)</span>
 
@@ -246,7 +248,7 @@
     <span class="k">def</span> <span class="nf">decrypt_enc_seed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">enc_bin</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">str0</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">buf</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="n">AES_KEY_SIZE</span><span class="p">)</span>
         <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="n">str0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-        <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="s1">&#39;Seed&#39;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="s2">&quot;Seed&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xor_block</span><span class="p">(</span><span class="n">aes_ecb_encrypt</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">buf</span><span class="p">),</span> <span class="n">enc_bin</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
@@ -256,7 +258,9 @@
         <span class="n">buf</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cbc_hash</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SdtidFile.xml_to_dict"><a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.xml_to_dict">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SdtidFile.xml_to_dict">
+<a class="viewcode-back" href="../../index.html#securid.sdtid.SdtidFile.xml_to_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">xml_to_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">xml</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert XML to nested OrderDict</span>
@@ -273,25 +277,27 @@
                         <span class="n">dd</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
             <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="n">xml</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span> <span class="n">dd</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="n">xml</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span> <span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)})</span></div>
+            <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="n">xml</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span> <span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)})</span></div>
+
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;TKNBatch&#39;</span><span class="p">][</span><span class="s1">&#39;TKN&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TKNBatch&quot;</span><span class="p">][</span><span class="s2">&quot;TKN&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;TKNBatch&#39;</span><span class="p">][</span><span class="s1">&#39;TKNHeader&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TKNBatch&quot;</span><span class="p">][</span><span class="s2">&quot;TKNHeader&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;TKNBatch&#39;</span><span class="p">][</span><span class="s1">&#39;TKNHeader&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Def&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TKNBatch&quot;</span><span class="p">][</span><span class="s2">&quot;TKNHeader&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Def&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;base64&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;=&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;base64&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;=&quot;</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;int&quot;</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;date&quot;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">value</span></div>
+
 
 
 <span class="k">class</span> <span class="nc">SessionHash</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -305,9 +311,9 @@
     <span class="k">def</span> <span class="nf">recursive_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># from https://github.com/cernekee/stoken</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;MAC&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;MAC&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="n">longname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">longname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
             <span class="n">remain</span> <span class="o">=</span> <span class="n">MAX_HASH_DATA</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">recursive_hash</span><span class="p">(</span><span class="n">longname</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
@@ -316,25 +322,23 @@
                     <span class="c1"># &quot;An empty string is valid XML but it might violate</span>
                     <span class="c1"># the sdtid format.  We&#39;ll handle it the same bizarre</span>
                     <span class="c1"># way as RSA just to be safe.&quot;</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> &lt;/</span><span class="si">%s</span><span class="s1">&gt;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">longname</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> &lt;/</span><span class="si">%s</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">longname</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_append_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">longname</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">longname</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_append_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
                     <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">16</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="n">remain</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mh">0xF</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_append_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">remain</span><span class="p">))</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">arrayset</span><span class="p">(</span>
-                            <span class="mi">0</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
-                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">arrayset</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">)</span>
                 <span class="c1">#  This doesn&#39;t really make sense but it&#39;s required for compatibility</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">&amp;</span> <span class="mh">0xF</span> <span class="ow">or</span> <span class="mh">0x10</span>
 
     <span class="k">def</span> <span class="nf">_append_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">BytesStr</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
@@ -378,7 +382,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

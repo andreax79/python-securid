@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>securid.stoken &#8212; securid 0.9.5 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css?v=514cf933" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/documentation_options.js?v=61b282d3"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -38,24 +38,25 @@
   <h1>Source code for securid.stoken</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="n">SERIAL_LENGTH</span><span class="p">,</span> <span class="n">Token</span><span class="p">,</span> <span class="n">AbstractTokenFile</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">AES_KEY_SIZE</span><span class="p">,</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">aes_ecb_encrypt</span><span class="p">,</span> <span class="n">aes_ecb_decrypt</span><span class="p">,</span> <span class="n">Bytearray</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ParseException</span><span class="p">,</span>
-    <span class="n">InvalidToken</span><span class="p">,</span>
-    <span class="n">InvalidSignature</span><span class="p">,</span>
     <span class="n">InvalidSeed</span><span class="p">,</span>
     <span class="n">InvalidSerial</span><span class="p">,</span>
+    <span class="n">InvalidSignature</span><span class="p">,</span>
+    <span class="n">InvalidToken</span><span class="p">,</span>
+    <span class="n">ParseException</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.token</span> <span class="kn">import</span> <span class="n">SERIAL_LENGTH</span><span class="p">,</span> <span class="n">AbstractTokenFile</span><span class="p">,</span> <span class="n">Token</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">AES_KEY_SIZE</span><span class="p">,</span> <span class="n">Bytearray</span><span class="p">,</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">aes_ecb_decrypt</span><span class="p">,</span> <span class="n">aes_ecb_encrypt</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DEFAULT_STOKEN_FILENAME&#39;</span><span class="p">,</span> <span class="s1">&#39;StokenFile&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DEFAULT_STOKEN_FILENAME&quot;</span><span class="p">,</span> <span class="s2">&quot;StokenFile&quot;</span><span class="p">]</span>
 
-<span class="n">DEFAULT_STOKEN_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;~/.stokenrc&#39;</span>
+<span class="n">DEFAULT_STOKEN_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;~/.stokenrc&quot;</span>
 <span class="n">FL_128BIT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">14</span>
 <span class="n">FL_PASSPROT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">13</span>
 <span class="n">FL_SNPROT</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span>
@@ -78,16 +79,13 @@
 <span class="n">MIN_TOKEN_BITS</span> <span class="o">=</span> <span class="mi">189</span>
 <span class="n">MAX_TOKEN_BITS</span> <span class="o">=</span> <span class="mi">255</span>
 <span class="n">MAX_TOKEN_LENGTH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MAX_TOKEN_BITS</span> <span class="o">/</span> <span class="n">TOKEN_BITS_PER_CHAR</span><span class="p">)</span>
-<span class="n">MIN_TOKEN_LENGTH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
-    <span class="p">(</span><span class="n">MIN_TOKEN_BITS</span> <span class="o">/</span> <span class="n">TOKEN_BITS_PER_CHAR</span><span class="p">)</span>
-    <span class="o">+</span> <span class="n">SERIAL_LENGTH</span>
-    <span class="o">+</span> <span class="n">VER_LENGTH</span>
-    <span class="o">+</span> <span class="n">CHECKSUM_LENGTH</span>
-<span class="p">)</span>
+<span class="n">MIN_TOKEN_LENGTH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">MIN_TOKEN_BITS</span> <span class="o">/</span> <span class="n">TOKEN_BITS_PER_CHAR</span><span class="p">)</span> <span class="o">+</span> <span class="n">SERIAL_LENGTH</span> <span class="o">+</span> <span class="n">VER_LENGTH</span> <span class="o">+</span> <span class="n">CHECKSUM_LENGTH</span><span class="p">)</span>
 <span class="n">SECURID_EPOCH</span> <span class="o">=</span> <span class="mi">730120</span>  <span class="c1"># 2000/01/01 proleptic Gregorian ordinal</span>
 
 
-<div class="viewcode-block" id="StokenFile"><a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile">[docs]</a><span class="k">class</span> <span class="nc">StokenFile</span><span class="p">(</span><span class="n">AbstractTokenFile</span><span class="p">):</span>
+<div class="viewcode-block" id="StokenFile">
+<a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile">[docs]</a>
+<span class="k">class</span> <span class="nc">StokenFile</span><span class="p">(</span><span class="n">AbstractTokenFile</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handler for stokenrc file format</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -112,7 +110,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">token</span>
         <span class="k">elif</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2_decode_token</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
@@ -122,42 +120,48 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2_decode_token</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">pin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_file_pin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
 
-<div class="viewcode-block" id="StokenFile.parse_file"><a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile.parse_file">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="StokenFile.parse_file">
+<a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile.parse_file">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse stokenrc file, return token as string</span>
 
 <span class="sd">        :param filename: stokenrc file path</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="k">if</span> <span class="sa">b</span><span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;token&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;token&quot;</span><span class="p">:</span>
                         <span class="k">return</span> <span class="n">v</span>
-        <span class="k">raise</span> <span class="n">ParseException</span><span class="p">(</span><span class="s1">&#39;Error parsing </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
+        <span class="k">raise</span> <span class="n">ParseException</span><span class="p">(</span><span class="s2">&quot;Error parsing </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="StokenFile.parse_file_pin"><a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile.parse_file_pin">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="StokenFile.parse_file_pin">
+<a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile.parse_file_pin">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">parse_file_pin</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse stokenrc file, return pin as int or 0 if not found</span>
 
 <span class="sd">        :param filename: stokenrc file path</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="k">if</span> <span class="sa">b</span><span class="s1">&#39; &#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;pin&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;pin&quot;</span><span class="p">:</span>
                         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span></div>
+
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">v2_decode_token</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_TOKEN_LENGTH</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_TOKEN_LENGTH</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidToken</span><span class="p">(</span><span class="s1">&#39;Invalid token length&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidToken</span><span class="p">(</span><span class="s2">&quot;Invalid token length&quot;</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_verify_checksum</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="c1"># version = data[0] - ord(&#39;0&#39;)</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_numinput_to_bits</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">BINENC_BITS</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">BINENC_OFS</span><span class="p">)</span>
@@ -165,7 +169,7 @@
         <span class="n">flags</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
         <span class="n">seed_hash</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">159</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
         <span class="n">exp_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">fromordinal</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span> <span class="o">+</span> <span class="n">SECURID_EPOCH</span><span class="p">)</span>
-        <span class="n">serial</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">VER_LENGTH</span> <span class="p">:</span> <span class="n">VER_LENGTH</span> <span class="o">+</span> <span class="n">SERIAL_LENGTH</span><span class="p">],</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+        <span class="n">serial</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">VER_LENGTH</span> <span class="p">:</span> <span class="n">VER_LENGTH</span> <span class="o">+</span> <span class="n">SERIAL_LENGTH</span><span class="p">],</span> <span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
         <span class="n">interval</span> <span class="o">=</span> <span class="mi">60</span> <span class="k">if</span> <span class="p">((</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">FLD_NUMSECONDS_MASK</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">FLD_NUMSECONDS_SHIFT</span><span class="p">)</span> <span class="k">else</span> <span class="mi">30</span>
         <span class="n">digits</span> <span class="o">=</span> <span class="p">((</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">FLD_DIGIT_MASK</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">FLD_DIGIT_SHIFT</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">v2_decrypt_seed</span><span class="p">(</span><span class="n">enc_seed</span><span class="p">,</span> <span class="n">seed_hash</span><span class="p">)</span>
@@ -179,11 +183,11 @@
 
     <span class="k">def</span> <span class="nf">v2_encode_token</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">seed</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidSeed</span><span class="p">(</span><span class="s1">&#39;Missing seed&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidSeed</span><span class="p">(</span><span class="s2">&quot;Missing seed&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidSerial</span><span class="p">(</span><span class="s1">&#39;Missing serial&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidSerial</span><span class="p">(</span><span class="s2">&quot;Missing serial&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SERIAL_LENGTH</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidSerial</span><span class="p">(</span><span class="s1">&#39;Serial length != </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERIAL_LENGTH</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">InvalidSerial</span><span class="p">(</span><span class="s2">&quot;Serial length != </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">SERIAL_LENGTH</span><span class="p">))</span>
         <span class="n">flags</span> <span class="o">=</span> <span class="n">FL_TIMESEEDS</span> <span class="o">|</span> <span class="n">FL_128BIT</span>
         <span class="n">flags</span> <span class="o">|=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">digits</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">FLD_DIGIT_SHIFT</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">FLD_DIGIT_MASK</span>
         <span class="n">flags</span> <span class="o">|=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">FLD_NUMSECONDS_SHIFT</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">interval</span> <span class="o">==</span> <span class="mi">60</span> <span class="k">else</span> <span class="mi">0</span>
@@ -200,13 +204,11 @@
             <span class="n">d</span><span class="p">,</span>
             <span class="mi">144</span><span class="p">,</span>
             <span class="mi">14</span><span class="p">,</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">exp_date</span><span class="o">.</span><span class="n">toordinal</span><span class="p">()</span> <span class="o">-</span> <span class="n">SECURID_EPOCH</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">exp_date</span>
-            <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">exp_date</span><span class="o">.</span><span class="n">toordinal</span><span class="p">()</span> <span class="o">-</span> <span class="n">SECURID_EPOCH</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">exp_date</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">Bytearray</span><span class="p">(</span><span class="mi">81</span><span class="p">)</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># version</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># version</span>
         <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bits_to_numoutput</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">BINENC_BITS</span><span class="p">),</span> <span class="n">dest_offset</span><span class="o">=</span><span class="n">BINENC_OFS</span><span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">arraycpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">serial</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">SERIAL_LENGTH</span><span class="p">,</span> <span class="n">dest_offset</span><span class="o">=</span><span class="n">VER_LENGTH</span><span class="p">)</span>
 
@@ -225,7 +227,7 @@
         <span class="n">token_mac</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_bits</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
         <span class="n">computed_mac</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_securid_shortmac</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">CHECKSUM_LENGTH</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">token_mac</span> <span class="o">!=</span> <span class="n">computed_mac</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidSignature</span><span class="p">(</span><span class="s1">&#39;Invalid checksum&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidSignature</span><span class="p">(</span><span class="s2">&quot;Invalid checksum&quot;</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_numinput_to_bits</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Bytes</span><span class="p">,</span> <span class="n">n_bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
@@ -233,7 +235,7 @@
         <span class="n">out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MAX_TOKEN_BITS</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">offset</span><span class="p">:]:</span>
-            <span class="n">decoded</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mh">0x07</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mh">0x07</span>
             <span class="n">decoded</span> <span class="o">=</span> <span class="n">decoded</span> <span class="o">&lt;&lt;</span> <span class="n">bitpos</span>
             <span class="n">out</span><span class="p">[</span><span class="mi">0</span> <span class="o">+</span> <span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span> <span class="o">+</span> <span class="n">pos</span><span class="p">]</span> <span class="o">|</span> <span class="n">decoded</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span>
             <span class="n">out</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">pos</span><span class="p">]</span> <span class="o">|</span> <span class="n">decoded</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
@@ -253,7 +255,7 @@
         <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bits</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">TOKEN_BITS_PER_CHAR</span><span class="p">):</span>
             <span class="n">binary</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">data</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">binary</span> <span class="o">&gt;&gt;</span> <span class="n">bitpos</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x07</span><span class="p">)</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">binary</span> <span class="o">&gt;&gt;</span> <span class="n">bitpos</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x07</span><span class="p">)</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">))</span>
             <span class="n">bitpos</span> <span class="o">-=</span> <span class="n">TOKEN_BITS_PER_CHAR</span>
             <span class="k">if</span> <span class="n">bitpos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">bitpos</span> <span class="o">=</span> <span class="n">bitpos</span> <span class="o">+</span> <span class="mi">8</span>
@@ -339,14 +341,18 @@
         <span class="n">seed</span> <span class="o">=</span> <span class="n">aes_ecb_decrypt</span><span class="p">(</span><span class="n">key_hash</span><span class="p">,</span> <span class="n">enc_seed</span><span class="p">)</span>
         <span class="n">calc_seed_hash</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_short_hash</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_securid_mac</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">calc_seed_hash</span> <span class="o">!=</span> <span class="n">seed_hash</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidSignature</span><span class="p">(</span><span class="s1">&#39;Seed decryption failed&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidSignature</span><span class="p">(</span><span class="s2">&quot;Seed decryption failed&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">seed</span>
 
-<div class="viewcode-block" id="StokenFile.get_token"><a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
+<div class="viewcode-block" id="StokenFile.get_token">
+<a class="viewcode-back" href="../../index.html#securid.stoken.StokenFile.get_token">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Token</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the Token instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span></div>
+</div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -384,7 +390,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

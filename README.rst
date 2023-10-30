@@ -10,15 +10,15 @@ This project is not affiliated with or endorsed by RSA Security.
 .. |made-with-python| image:: https://img.shields.io/badge/Made%20with-Python-1f425f.svg
    :target: https://www.python.org/
 .. |Build Status| image:: https://github.com/andreax79/python-securid/workflows/Tests/badge.svg
-    :target: https://github.com/andreax79/python-securid/actions
+   :target: https://github.com/andreax79/python-securid/actions
 .. |PyPI version| image:: https://badge.fury.io/py/securid.svg
-    :target: https://badge.fury.io/py/securid
+   :target: https://badge.fury.io/py/securid
 .. |PyPI| image:: https://img.shields.io/pypi/pyversions/securid.svg
-    :target: https://pypi.org/project/securid
+   :target: https://pypi.org/project/securid
 .. |Downloads| image:: https://pepy.tech/badge/securid/month
-    :target: https://pepy.tech/project/securid
+   :target: https://pepy.tech/project/securid
 .. |PyPI license| image:: https://img.shields.io/pypi/l/securid.svg
-   :target: https://pypi.python.org/pypi/asecurid/    
+   :target: https://pypi.python.org/pypi/asecurid/
 .. |Code style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 
