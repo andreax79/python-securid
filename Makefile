@@ -9,6 +9,9 @@ help:
 	@echo - make clean
 	@echo - make doc
 
+codespell:
+	codespell codespell securid.py securid/*.py tests/*.py
+
 isort:
 	isort --profile black securid tests
 
@@ -21,7 +24,7 @@ coverage:
 test:
 	pytest
 
-typecheck:
+typecheck: codespell
 	mypy --strict --no-warn-unused-ignores securid
 
 lint:
@@ -37,7 +40,7 @@ clean:
 	-rm -rf bin lib share pyvenv.cfg
 
 venv:
-	python3 -m virtualenv .
+	python3 -m venv . || python3 -m virtualenv .
 	. bin/activate; pip install -Ur requirements.txt
 	. bin/activate; pip install -Ur requirements-dev.txt
 
