@@ -64,3 +64,11 @@
 ### Changed
 
 - pytest, setup.cfg
+
+## 0.9.7
+
+2024-01-17
+
+### Added
+
+- Python 3.13 suport

@@ -21,6 +21,10 @@ This project is not affiliated with or endorsed by RSA Security.
    :target: https://pypi.python.org/pypi/asecurid/
 .. |Code style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
+.. |Imports: isort| image:: https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336
+   :target: https://pycqa.github.io/isort/
+.. |Known Vulnerabilities| image:: https://snyk.io/test/github/andreax79/python-securid/badge.svg
+   :target: https://snyk.io/test/github/andreax79/python-cstruct
 
 
 Installation
